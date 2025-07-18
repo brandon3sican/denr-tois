@@ -3,6 +3,25 @@
 ## Overview
 This document describes the database schema for the DENR Travel Order Information System (TOIS). The system uses MySQL/MariaDB as its database management system.
 
+## Sorting and Querying
+
+### Employee Listings
+- Default sort: `created_at DESC` (newest first)
+- Sortable columns:
+  - `first_name` - Employee's first name
+  - `position_id` - Sorts by position name
+  - `div_sec_unit_id` - Sorts by division/unit name
+  - `employment_status_id` - Sorts by employment status name
+  - `created_at` - Date of record creation
+
+### User Listings
+- Default sort: `created_at DESC` (newest first)
+- Sortable columns:
+  - `username` - Login username
+  - `employee_id` - Sorts by employee's name
+  - `is_admin` - Sorts by admin status
+  - `created_at` - Date of account creation
+
 ## Tables
 
 ### 1. users
@@ -12,10 +31,11 @@ Stores user account information for system access.
 |--------|------|-------------|
 | id | bigint | Primary key |
 | username | string | Unique username for login |
-| password | string | Hashed password |
+| password | string | Hashed password using Laravel's bcrypt |
 | is_admin | boolean | Whether the user has admin privileges |
-| employee_id | bigint | Foreign key to employees table |
+| employee_id | bigint | Foreign key to employees table (nullable) |
 | remember_token | string | Used for "remember me" functionality |
+| email_verified_at | timestamp | When the email was verified (nullable) |
 | created_at | timestamp | When the record was created |
 | updated_at | timestamp | When the record was last updated |
 
