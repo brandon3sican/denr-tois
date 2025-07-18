@@ -50,6 +50,9 @@ class Employee extends Model
         return $this->hasMany(TravelOrder::class);
     }
     
+    /**
+     * Get the user associated with the employee.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

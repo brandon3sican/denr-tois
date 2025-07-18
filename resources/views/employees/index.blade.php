@@ -16,18 +16,62 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Position</th>
-                        <th>Division/Unit</th>
-                        <th>Status</th>
+                        <th>
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'first_name', 'direction' => request('sort') === 'first_name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                Name
+                                @if(request('sort') === 'first_name')
+                                    <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                    <i class="fas fa-sort"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'position_id', 'direction' => request('sort') === 'position_id' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                Position
+                                @if(request('sort') === 'position_id')
+                                    <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                    <i class="fas fa-sort"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'div_sec_unit_id', 'direction' => request('sort') === 'div_sec_unit_id' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                Division/Unit
+                                @if(request('sort') === 'div_sec_unit_id')
+                                    <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                    <i class="fas fa-sort"></i>
+                                @endif
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'employment_status_id', 'direction' => request('sort') === 'employment_status_id' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                Status
+                                @if(request('sort') === 'employment_status_id')
+                                    <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                    <i class="fas fa-sort"></i>
+                                @endif
+                            </a>
+                        </th>
                         <th>Actions</th>
+                        <th>
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => 'created_at', 'direction' => request('sort') === 'created_at' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="text-decoration-none text-dark">
+                                Created
+                                @if(request('sort') === 'created_at')
+                                    <i class="fas fa-sort-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
+                                @else
+                                    <i class="fas fa-sort"></i>
+                                @endif
+                            </a>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($employees as $employee)
                         <tr>
-                            <td>{{ $employee->id }}</td>
                             <td>{{ $employee->full_name }}</td>
                             <td>{{ $employee->position->name ?? 'N/A' }}</td>
                             <td>{{ $employee->divSecUnit->name ?? 'N/A' }}</td>
@@ -75,6 +119,7 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>{{ $employee->created_at->format('M d, Y') }}</td>
                         </tr>
                     @empty
                         <tr>

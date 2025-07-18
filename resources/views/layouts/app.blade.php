@@ -17,12 +17,20 @@
             </div>
             <nav>
                 
-                <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
-                    <i class="fas fa-user"></i> Employees
-                </a>
+                @auth
+                    @if(auth()->user()->is_admin)
+                    <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                        <i class="fas fa-user"></i> Employees
+                    </a>
+                    @endif
+                @endauth
 
                 <a href="{{ route('travel-orders.index') }}" class="{{ request()->routeIs('travel-orders.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i> Travel Orders
+                </a>
+
+                <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-alt"></i> Users
                 </a>
 
             </nav>

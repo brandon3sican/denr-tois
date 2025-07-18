@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\TravelOrderController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -41,6 +42,9 @@ Route::middleware(['auth'])->group(function () {
     
     // Travel Order Routes
     Route::resource('travel-orders', TravelOrderController::class);
+    
+    // User Management Routes
+    Route::resource('users', UserController::class);
     
     // Home Route for authenticated users
     Route::get('/home', function () {

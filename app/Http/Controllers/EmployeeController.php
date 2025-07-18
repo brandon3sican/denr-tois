@@ -10,10 +10,36 @@ use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::with(['position', 'divSecUnit', 'employmentStatus'])->latest()->paginate(10);
-        return view('employees.index', compact('employees'));
+        $validSortFields = ['first_name', 'last_name', 'position_id', 'div_sec_unit_id', 'employment_status_id', 'created_at'];
+        $sortField = in_array($request->get('sort'), $validSortFields) ? $request->get('sort') : 'created_at';
+        $sortDirection = $request->get('direction', 'desc');
+        $sortDirection = in_array(strtolower($sortDirection), ['asc', 'desc']) ? $sortDirection : 'desc';
+        
+        $employees = Employee::with(['position', 'divSecUnit', 'employmentStatus'])
+            ->when($sortField === 'position_id', function($query) use ($sortDirection) {
+                return $query->join('positions', 'employees.position_id', '=', 'positions.id')
+                    ->orderBy('positions.name', $sortDirection)
+                    ->select('employees.*');
+            })
+            ->when($sortField === 'div_sec_unit_id', function($query) use ($sortDirection) {
+                return $query->join('div_sec_units', 'employees.div_sec_unit_id', '=', 'div_sec_units.id')
+                    ->orderBy('div_sec_units.name', $sortDirection)
+                    ->select('employees.*');
+            })
+            ->when($sortField === 'employment_status_id', function($query) use ($sortDirection) {
+                return $query->join('employment_statuses', 'employees.employment_status_id', '=', 'employment_statuses.id')
+                    ->orderBy('employment_statuses.name', $sortDirection)
+                    ->select('employees.*');
+            })
+            ->when(in_array($sortField, ['first_name', 'last_name', 'created_at']), function($query) use ($sortField, $sortDirection) {
+                return $query->orderBy($sortField, $sortDirection);
+            })
+            ->paginate(10)
+            ->withQueryString();
+            
+        return view('employees.index', compact('employees', 'sortField', 'sortDirection'));
     }
 
     public function create()

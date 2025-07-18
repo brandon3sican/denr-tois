@@ -45,6 +45,14 @@ class User extends Authenticatable
     ];
 
     /**
+     * Get the employee associated with the user.
+     */
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    /**
      * Get the username for the user.
      *
      * @return string
@@ -52,10 +60,5 @@ class User extends Authenticatable
     public function username()
     {
         return 'username';
-    }
-    
-    public function employee(): HasOne
-    {
-        return $this->hasOne(Employee::class);
     }
 }
