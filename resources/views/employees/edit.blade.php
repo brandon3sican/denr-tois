@@ -66,7 +66,6 @@
                         <option value="" disabled>Select Gender</option>
                         <option value="male" {{ old('gender', $employee->gender) == 'male' ? 'selected' : '' }}>Male</option>
                         <option value="female" {{ old('gender', $employee->gender) == 'female' ? 'selected' : '' }}>Female</option>
-                        <option value="other" {{ old('gender', $employee->gender) == 'other' ? 'selected' : '' }}>Other</option>
                     </select>
                     @error('gender')
                         <div class="invalid-feedback">{{ $message }}</div>

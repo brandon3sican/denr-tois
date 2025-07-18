@@ -87,7 +87,7 @@ class ReferenceDataSeeder extends Seeder
 
         // Seed Travel Order Statuses
         $toStatuses = [
-            ['name' => 'Draft', 'description' => 'Initial draft of the travel order'],
+            ['name' => 'For Recommendation', 'description' => 'Submitted for recommendation'],
             ['name' => 'For Approval', 'description' => 'Submitted for approval'],
             ['name' => 'Approved', 'description' => 'Approved by the authorized signatory'],
             ['name' => 'Disapproved', 'description' => 'Disapproved by the authorized signatory'],
@@ -104,7 +104,7 @@ class ReferenceDataSeeder extends Seeder
             ['name' => 'Requester', 'description' => 'Person who creates the travel order'],
             ['name' => 'Recommender', 'description' => 'Person who recommends the travel order'],
             ['name' => 'Approver', 'description' => 'Person who approves the travel order'],
-            ['name' => 'Noted By', 'description' => 'Person who needs to be informed about the travel order'],
+            ['name' => 'Noted By', 'description' => 'Person who assigns travel order number'],
         ];
 
         foreach ($userTypes as $type) {

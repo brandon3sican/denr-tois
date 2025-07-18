@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
         // Seed reference data
         $this->call([
             ReferenceDataSeeder::class,
+            RegionAndStationSeeder::class,
+            EmployeeAndTravelOrderSeeder::class,
         ]);
     }
 }

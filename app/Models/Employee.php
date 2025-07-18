@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Employee extends Model
 {
     protected $fillable = [
+        'user_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -47,6 +48,11 @@ class Employee extends Model
     public function travelOrders(): HasMany
     {
         return $this->hasMany(TravelOrder::class);
+    }
+    
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function getFullNameAttribute(): string
