@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Employee;
+use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -48,40 +50,19 @@ class UserController extends Controller
         return view('users.create', compact('employees'));
     }
 
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        $validated = $request->validate([
-            'username' => 'required|string|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'is_admin' => 'boolean',
-            'employee_id' => [
-                'required',
-                'exists:employees,id',
-                'unique:users,employee_id',
-                function ($attribute, $value, $fail) {
-                    $employee = \App\Models\Employee::find($value);
-                    if ($employee && $employee->user) {
-                        $fail('The selected employee already has a user account.');
-                    }
-                },
-            ],
-        ]);
-
         try {
-            $user = new User();
-            $user->username = $validated['username'];
-            $user->password = Hash::make($validated['password']);
-            $user->is_admin = $request->has('is_admin');
-            $user->employee_id = $validated['employee_id'];
-            $user->save();
+            $validated = $request->validated();
+            $validated['password'] = Hash::make($validated['password']);
+            
+            User::create($validated);
 
             return redirect()->route('users.index')
                 ->with('success', 'User created successfully.');
-                
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Error creating user. Please try again.');
+            return back()->withInput()
+                ->with('error', 'Error creating user: ' . $e->getMessage());
         }
     }
 
@@ -92,12 +73,13 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        // Get all employees that don't have a user account, plus the currently assigned employee
-        $employees = \App\Models\Employee::whereDoesntHave('user')
-            ->orWhere('id', $user->employee_id)
+        $employees = Employee::select('id', 'first_name', 'middle_name', 'last_name', 'suffix')
+            ->where(function($query) use ($user) {
+                $query->whereDoesntHave('user')
+                    ->orWhere('id', $user->employee_id);
+            })
             ->orderBy('last_name')
             ->orderBy('first_name')
-            ->select('id', 'first_name', 'middle_name', 'last_name', 'suffix')
             ->get()
             ->map(function($employee) {
                 $employee->full_name = $employee->full_name;
@@ -107,37 +89,35 @@ class UserController extends Controller
         return view('users.edit', compact('user', 'employees'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(UserRequest $request, User $user)
     {
-        $rules = [
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-            'is_admin' => 'boolean',
-            'employee_id' => 'required|exists:employees,id|unique:users,employee_id,' . $user->id
-        ];
+        try {
+            $validated = $request->validated();
+            
+            if (empty($validated['password'])) {
+                unset($validated['password']);
+            } else {
+                $validated['password'] = Hash::make($validated['password']);
+            }
 
-        if ($request->filled('password')) {
-            $rules['password'] = 'string|min:8|confirmed';
+            $user->update($validated);
+
+            return redirect()->route('users.index')
+                ->with('success', 'User updated successfully.');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->with('error', 'Error updating user: ' . $e->getMessage());
         }
-
-        $validated = $request->validate($rules);
-
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
-
-        $validated['is_admin'] = $request->has('is_admin');
-
-        $user->update($validated);
-
-        return redirect()->route('users.index')
-            ->with('success', 'User updated successfully');
     }
 
     public function destroy(User $user)
     {
-        $user->delete();
-
-        return redirect()->route('users.index')
-            ->with('success', 'User deleted successfully');
+        try {
+            $user->delete();
+            return redirect()->route('users.index')
+                ->with('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error deleting user: ' . $e->getMessage());
+        }
     }
 }

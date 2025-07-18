@@ -130,8 +130,13 @@
             </table>
         </div>
         
-        <div class="d-flex justify-content-center mt-4">
-            {{ $employees->links() }}
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="text-muted">
+                Showing {{ $employees->firstItem() }} to {{ $employees->lastItem() }} of {{ $employees->total() }} entries
+            </div>
+            <nav aria-label="Page navigation">
+                {{ $employees->onEachSide(1)->links('pagination::bootstrap-4') }}
+            </nav>
         </div>
     </div>
 </div>
@@ -185,6 +190,38 @@
     .btn-action {
         user-select: none;
         -webkit-user-select: none;
+    }
+    
+    /* Pagination styling */
+    .pagination {
+        margin-bottom: 0;
+    }
+    
+    .page-link {
+        color: #0d6efd;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: white;
+    }
+    
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+    
+    .page-link:hover {
+        z-index: 2;
+        color: #0a58ca;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
     }
 </style>
 @endpush

@@ -49,7 +49,28 @@ class User extends Authenticatable
      */
     public function employee()
     {
-        return $this->hasOne(Employee::class);
+        return $this->belongsTo(Employee::class)->withDefault();
+    }
+    
+    /**
+     * The "booting" method of the model.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($user) {
+            if ($user->employee_id && User::where('employee_id', $user->employee_id)->exists()) {
+                throw new \Exception('This employee already has a user account.');
+            }
+        });
+        
+        static::updating(function ($user) {
+            if ($user->isDirty('employee_id') && $user->employee_id && 
+                User::where('employee_id', $user->employee_id)
+                    ->where('id', '!=', $user->id)
+                    ->exists()) {
+                throw new \Exception('This employee already has a user account.');
+            }
+        });
     }
 
     /**
