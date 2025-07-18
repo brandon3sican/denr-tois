@@ -16,6 +16,10 @@
                 <span><img src="{{ asset('assets/img/denr-logo.png') }}" alt="DENR Logo" height="50" width="50"> TOS</span>
             </div>
             <nav>
+
+                <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
                 
                 @auth
                     @if(auth()->user()->is_admin)
@@ -29,9 +33,13 @@
                     <i class="fas fa-file-alt"></i> Travel Orders
                 </a>
 
-                <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
-                    <i class="fas fa-file-alt"></i> Users
-                </a>
+                @auth
+                    @if(auth()->user()->is_admin)
+                    <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-alt"></i> Users
+                    </a>
+                    @endif
+                @endauth
 
             </nav>
         </div>
