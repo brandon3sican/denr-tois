@@ -63,16 +63,14 @@
                                 type="button" id="userDropdown" data-bs-toggle="dropdown" 
                                 aria-expanded="false">
                             <i class="fas fa-user-circle me-2" style="color: var(--denr-primary);"></i>
-                            <span class="d-none d-sm-inline">{{ Auth::user()->username }}</span>
+                            
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="userDropdown">
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user me-2"></i>Profile
-                                </a>
+                            <li class="text-center">
+                                <span class="fw-bold" style="color: var(--denr-primary);">{{ Auth::user()->employee->full_name ?? Auth::user()->username }}</span>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li>
+                            <li class="text-center">
                                 <a class="dropdown-item text-danger" href="{{ route('logout') }}" 
                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
