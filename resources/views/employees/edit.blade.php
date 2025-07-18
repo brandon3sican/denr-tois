@@ -76,7 +76,9 @@
                 <div class="col-md-4">
                     <label for="birthdate" class="form-label">Birthdate *</label>
                     <input type="date" class="form-control @error('birthdate') is-invalid @enderror" 
-                           id="birthdate" name="birthdate" value="{{ old('birthdate', $employee->birthdate->format('Y-m-d')) }}" required>
+                           id="birthdate" name="birthdate" 
+                           value="{{ old('birthdate', $employee->birthdate ? \Carbon\Carbon::parse($employee->birthdate)->format('Y-m-d') : '') }}" 
+                           required>
                     @error('birthdate')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -85,7 +87,9 @@
                 <div class="col-md-4">
                     <label for="date_hired" class="form-label">Date Hired *</label>
                     <input type="date" class="form-control @error('date_hired') is-invalid @enderror" 
-                           id="date_hired" name="date_hired" value="{{ old('date_hired', $employee->date_hired->format('Y-m-d')) }}" required>
+                           id="date_hired" name="date_hired" 
+                           value="{{ old('date_hired', $employee->date_hired ? \Carbon\Carbon::parse($employee->date_hired)->format('Y-m-d') : '') }}" 
+                           required>
                     @error('date_hired')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
