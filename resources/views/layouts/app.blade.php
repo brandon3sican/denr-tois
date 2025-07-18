@@ -45,18 +45,42 @@
         </div>
 
         <div class="main-content">
-            <header class="position-relative">
-                <div class="welcome-message" style="color: var(--denr-primary);">
-                    <p class="text-gray-600">You are logged in as <strong>{{ Auth::user()->username }}</strong>.</p>
+            <header class="bg-white shadow-sm py-3 px-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="welcome-message">
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-user-circle me-2" style="color: var(--denr-primary);"></i>
+                            Welcome back, 
+                            <span class="fw-bold" style="color: var(--denr-primary);">{{ Auth::user()->username }}</span>
+                        </p>
+                    </div>
                 </div>
-                <div class="user-profile position-relative">
-                    <a href="{{ route('logout') }}" class="btn btn-danger btn-sm" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="fas fa-sign-out-alt me-1"></i>
-                        Logout
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
+                <div class="user-actions">
+                    <div class="dropdown">
+                        <button class="btn btn-light rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center" 
+                                type="button" id="userDropdown" data-bs-toggle="dropdown" 
+                                aria-expanded="false">
+                            <i class="fas fa-user-circle me-2" style="color: var(--denr-primary);"></i>
+                            <span class="d-none d-sm-inline">{{ Auth::user()->username }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ route('logout') }}" 
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </header>
     @else

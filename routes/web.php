@@ -10,10 +10,17 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 
-// Home Route
+// Dashboard Route
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->name('dashboard')
+    ->middleware('auth');
+
+// Home Route - Redirect to dashboard for authenticated users
 Route::get('/', function () {
-    return redirect()->route('employees.index');
-});
+    return auth()->check() 
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+})->name('home');
 
 // Authentication Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
