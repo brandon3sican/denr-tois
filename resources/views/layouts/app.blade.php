@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Travel Order System')</title>
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('styles.css') }}">
+</head>
+<body>
+    @auth
+        <div class="sidebar">
+            <div class="logo">
+                <span><img src="{{ asset('assets/img/denr-logo.png') }}" alt="DENR Logo" height="50" width="50"> TOS</span>
+            </div>
+            <nav>
+                
+                <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                    <i class="fas fa-user"></i> Employees
+                </a>
+
+                <a href="{{ route('travel-orders.index') }}" class="{{ request()->routeIs('travel-orders.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-alt"></i> Travel Orders
+                </a>
+
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <header class="position-relative">
+                <div class="welcome-message" style="color: var(--denr-primary);">
+                    <p class="text-gray-600">You are logged in as <strong>{{ Auth::user()->username }}</strong>.</p>
+                </div>
+                <div class="user-profile position-relative">
+                    <a href="{{ route('logout') }}" class="btn btn-danger btn-sm" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="fas fa-sign-out-alt me-1"></i>
+                        Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </div>
+            </header>
+    @else
+        <div class="login-container">
+            <div class="login-content">
+                @yield('content')
+            </div>
+        </div>
+    @endauth
+
+        <main>
+            @yield('content')
+        </main>
+    </div>
+
+    <!-- Bootstrap JavaScript Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown-toggle');
+            dropdowns.forEach(dropdown => {
+                new bootstrap.Dropdown(dropdown);
+            });
+        });
+    </script>
+    
+    <script src="{{ asset('script.js') }}"></script>
+    @stack('scripts')
+</body>
+</html>
