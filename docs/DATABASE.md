@@ -3,6 +3,14 @@
 ## Overview
 This document describes the database schema for the DENR Travel Order Information System (TOIS). The system uses MySQL/MariaDB as its database management system.
 
+## Key Relationships
+
+### Employee-User Relationship
+- Each employee can have **exactly one** user account
+- Each user account can be associated with **at most one** employee
+- The admin user has a dedicated employee record
+- Employee-user relationships are enforced at both the database and application levels
+
 ## Sorting and Querying
 
 ### Employee Listings
@@ -18,7 +26,7 @@ This document describes the database schema for the DENR Travel Order Informatio
 - Default sort: `created_at DESC` (newest first)
 - Sortable columns:
   - `username` - Login username
-  - `employee_id` - Sorts by employee's name
+  - `employee_id` - Sorts by employee's name (shows 'N/A' for admin)
   - `is_admin` - Sorts by admin status
   - `created_at` - Date of account creation
 
@@ -30,14 +38,17 @@ Stores user account information for system access.
 | Column | Type | Description |
 |--------|------|-------------|
 | id | bigint | Primary key |
-| username | string | Unique username for login |
+| username | string | Unique username for login (auto-generated as first initial + last name) |
 | password | string | Hashed password using Laravel's bcrypt |
 | is_admin | boolean | Whether the user has admin privileges |
-| employee_id | bigint | Foreign key to employees table (nullable) |
+| employee_id | bigint | Foreign key to employees table (unique, nullable for admin) |
 | remember_token | string | Used for "remember me" functionality |
-| email_verified_at | timestamp | When the email was verified (nullable) |
 | created_at | timestamp | When the record was created |
 | updated_at | timestamp | When the record was last updated |
+
+**Indexes:**
+- Unique index on `username`
+- Unique index on `employee_id` (allows one null for admin)
 
 ### 2. employees
 Stores employee information.
@@ -135,8 +146,26 @@ Stores signatory information for travel orders.
 ## Seed Data
 
 The database includes seed data for:
-- Default admin user (username: admin, password: admin123)
-- Reference data for positions with corresponding salary grades
+- Default admin user (username: `admin`, password: `admin123`)
+- 10 sample employees with corresponding user accounts (passwords: `password123`)
+- Reference data for positions, divisions/units, and employment statuses
+
+### Sample User Accounts
+- **Admin User**
+  - Username: `admin`
+  - Password: `admin123`
+  - Employee: System Administrator
+
+- **Regular Users**
+  - Username format: first initial + last name (e.g., `jdelacruz`)
+  - Default password: `password123`
+  - Each user is linked to a unique employee record
+
+### Employee Data
+- Realistic names and positions
+- Randomly generated contact information
+- Balanced distribution across divisions/units
+- Mix of employment statuses (Permanent, Contractual, Job Order)
 - Division/Section/Units
 - Employment statuses
 

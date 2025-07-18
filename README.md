@@ -14,9 +14,10 @@ The DENR Travel Order Information System (TOIS) is a web-based application desig
 - **User Authentication & Management**
   - Username/password login
   - Role-based access control (Admin/Regular User)
-  - Secure password hashing
-  - Employee association for user accounts
-  - Sortable user listings
+  - Secure password hashing with bcrypt
+  - One-to-one employee-user relationship
+  - Auto-generated usernames (first initial + last name)
+  - Sortable user listings with pagination
 
 - **Employee Management**
   - Employee records with personal information
@@ -24,6 +25,7 @@ The DENR Travel Order Information System (TOIS) is a web-based application desig
   - Employment status monitoring
   - Sortable employee listings by name, position, department, and status
   - Default sort by creation date (newest first)
+  - Unique user account association
 
 - **Travel Order Management**
   - Create and submit travel orders
@@ -43,6 +45,18 @@ The DENR Travel Order Information System (TOIS) is a web-based application desig
 - MySQL 5.7+ or MariaDB 10.3+
 - Node.js 16+ and NPM
 - Web server (Apache/Nginx)
+
+## Default Accounts
+
+### Admin User
+- **Username**: admin
+- **Password**: admin123
+- **Employee**: System Administrator
+
+### Sample Regular Users
+- **Username Format**: First initial + last name (e.g., jdelacruz)
+- **Password**: password123
+- **Note**: All sample users are linked to employee records
 
 ## Installation
 
