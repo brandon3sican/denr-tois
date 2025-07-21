@@ -96,8 +96,11 @@
                 </div>
                 <div class="col-md-6">
                     <label for="official_station" class="form-label">Official Station *</label>
-                    <input type="text" class="form-control @error('official_station') is-invalid @enderror" 
-                           id="official_station" name="official_station" value="{{ $isAdmin ? old('official_station') : ($employee->official_station ?? 'Not specified') }}" required readonly>
+                    <select class="form-select @error('official_station') is-invalid @enderror" 
+                            id="official_station" name="official_station" required>
+                        <option value="" disabled selected>Select a station</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
                     @error('official_station')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -105,7 +108,44 @@
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-4">
+                <div class="col-md-6">
+                    <label for="region_id" class="form-label">Region *</label>
+                    <select class="form-select @error('region_id') is-invalid @enderror" id="region_id" name="region_id" required>
+                        <option value="" disabled selected>Select Region</option>
+                        @foreach($regions as $region)
+                            <option value="{{ $region->id }}" 
+                                    data-address="{{ $region->address }}"
+                                    data-contact-number="{{ $region->contact_number }}"
+                                    data-email="{{ $region->email }}"
+                                    data-code="{{ $region->code }}">
+                                {{ $region->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('region_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
+                    <label for="address" class="form-label">Complete Address *</label>
+                    <input type="text" class="form-control @error('address') is-invalid @enderror" 
+                           id="address" name="address" value="{{ old('address') }}" required>
+                    @error('address')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="contact_number" class="form-label">Contact Number</label>
+                    <input type="text" class="form-control" id="contact_number" name="contact_number" readonly>
+                </div>
+                <div class="col-md-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" readonly>
+                </div>
+                <div class="col-md-6">
                     <label for="destination" class="form-label">Destination *</label>
                     <input type="text" class="form-control @error('destination') is-invalid @enderror" 
                            id="destination" name="destination" value="{{ old('destination') }}" required>
@@ -266,6 +306,103 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Handle region selection
+        const regionSelect = document.getElementById('region_id');
+        const addressInput = document.getElementById('address');
+        const contactNumberInput = document.getElementById('contact_number');
+        const emailInput = document.getElementById('email');
+        
+        if (regionSelect) {
+            // Store stations data for the current region
+            let currentStations = [];
+            
+            // Function to load official stations for a region
+            async function loadOfficialStations(regionId) {
+                const officialStationSelect = document.getElementById('official_station');
+                
+                try {
+                    const response = await fetch(`/api/regions/${regionId}/stations`);
+                    currentStations = await response.json();
+                    
+                    // Clear existing options except the first one
+                    while (officialStationSelect.options.length > 1) {
+                        officialStationSelect.remove(1);
+                    }
+                    
+                    // Add new station options
+                    currentStations.forEach(station => {
+                        const option = document.createElement('option');
+                        option.value = station.code;
+                        option.dataset.address = station.address || '';
+                        option.textContent = `${station.code} - ${station.name}`;
+                        officialStationSelect.appendChild(option);
+                    });
+                    
+                    // If there's only one station, select it by default
+                    if (currentStations.length === 1) {
+                        officialStationSelect.value = currentStations[0].code;
+                        // Update address when only one station is available
+                        updateAddressFromStation(currentStations[0]);
+                    }
+                    
+                    return currentStations;
+                } catch (error) {
+                    console.error('Error loading official stations:', error);
+                    currentStations = [];
+                    return [];
+                }
+            }
+            
+            // Function to update address based on selected station
+            function updateAddressFromStation(station) {
+                const addressInput = document.getElementById('address');
+                if (station && station.address) {
+                    addressInput.value = station.address;
+                }
+            }
+            
+            // Handle station selection change
+            document.getElementById('official_station').addEventListener('change', function() {
+                const selectedStationCode = this.value;
+                if (selectedStationCode) {
+                    const selectedStation = currentStations.find(s => s.code === selectedStationCode);
+                    if (selectedStation) {
+                        updateAddressFromStation(selectedStation);
+                    }
+                } else {
+                    document.getElementById('address').value = '';
+                }
+            });
+            
+            regionSelect.addEventListener('change', async function() {
+                const selectedOption = this.options[this.selectedIndex];
+                
+                if (selectedOption.value) {
+                    // Update contact info from region
+                    contactNumberInput.value = selectedOption.dataset.contactNumber || '';
+                    emailInput.value = selectedOption.dataset.email || '';
+                    
+                    // Load official stations for the selected region
+                    await loadOfficialStations(selectedOption.value);
+                } else {
+                    // Clear all fields if no region is selected
+                    document.getElementById('address').value = '';
+                    contactNumberInput.value = '';
+                    emailInput.value = '';
+                    
+                    // Clear station select
+                    const officialStationSelect = document.getElementById('official_station');
+                    while (officialStationSelect.options.length > 1) {
+                        officialStationSelect.remove(1);
+                    }
+                    officialStationSelect.value = '';
+                    
+                    // Clear stations data
+                    currentStations = [];
+                }
+            });
+        }
+
         // Auto-fill employee details when selected or on page load for non-admin
         const employeeSelect = document.getElementById('employee_id');
         const fullNameInput = document.getElementById('full_name');

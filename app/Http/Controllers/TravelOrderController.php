@@ -22,6 +22,7 @@ class TravelOrderController extends Controller
         $user = auth()->user();
         $employees = $user->is_admin ? Employee::all() : collect();
         $userTypes = TravelOrderUserType::all();
+        $regions = \App\Models\Region::where('is_active', true)->get();
         
         // Get the 'For Recommendation' status
         $forRecommendationStatus = TravelOrderStatus::where('name', 'For Recommendation')->first();
@@ -44,7 +45,8 @@ class TravelOrderController extends Controller
             'status_name' => $forRecommendationStatus ? $forRecommendationStatus->name : 'For Recommendation',
             'userTypes' => $userTypes,
             'isAdmin' => $user->is_admin,
-            'employee' => $employee
+            'employee' => $employee,
+            'regions' => $regions
         ]);
     }
 
@@ -58,8 +60,10 @@ class TravelOrderController extends Controller
         }
 
         $validated = $request->validate([
-            'region' => 'required|string|max:255',
+            'region_id' => 'required|exists:regions,id',
             'address' => 'required|string',
+            'contact_number' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:100',
             'date' => 'required|date',
             'travel_order_no' => 'required|string|unique:travel_orders,travel_order_no',
             'employee_id' => 'required|exists:employees,id',
@@ -99,6 +103,7 @@ class TravelOrderController extends Controller
 
     public function show(TravelOrder $travelOrder)
     {
+        $travelOrder->load('region');
         return view('travel-orders.show', compact('travelOrder'));
     }
 
@@ -107,15 +112,18 @@ class TravelOrderController extends Controller
         $employees = Employee::all();
         $statuses = TravelOrderStatus::all();
         $userTypes = TravelOrderUserType::all();
+        $regions = \App\Models\Region::where('is_active', true)->get();
         
-        return view('travel-orders.edit', compact('travelOrder', 'employees', 'statuses', 'userTypes'));
+        return view('travel-orders.edit', compact('travelOrder', 'employees', 'statuses', 'userTypes', 'regions'));
     }
 
     public function update(Request $request, TravelOrder $travelOrder)
     {
         $validated = $request->validate([
-            'region' => 'required|string|max:255',
+            'region_id' => 'required|exists:regions,id',
             'address' => 'required|string',
+            'contact_number' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:100',
             'date' => 'required|date',
             'travel_order_no' => 'required|string|unique:travel_orders,travel_order_no,' . $travelOrder->id,
             'employee_id' => 'required|exists:employees,id',

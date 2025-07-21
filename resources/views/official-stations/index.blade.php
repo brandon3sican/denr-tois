@@ -1,56 +1,61 @@
 @extends('layouts.app')
 
-@section('title', 'Travel Orders')
-
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Travel Orders</h1>
-    <a href="{{ route('travel-orders.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Create Travel Order
-    </a>
-</div>
+<div class="container">
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col-auto">
+            <h1>Official Stations</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{{ route('official-stations.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Station
+            </a>
+        </div>
+    </div>
 
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Travel Order No.</th>
-                        <th>Employee</th>
-                        <th>Destination</th>
-                        <th>Departure Date</th>
-                        <th>Arrival Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($travelOrders as $travelOrder)
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
                         <tr>
-                            <td>{{ $travelOrder->travel_order_no }}</td>
-                            <td>{{ $travelOrder->full_name }}</td>
-                            <td>{{ $travelOrder->destination }}</td>
-                            <td>{{ \Carbon\Carbon::parse($travelOrder->departure_date)->format('M d, Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($travelOrder->arrival_date)->format('M d, Y') }}</td>
-                            <td>
-                                @php
-                                    $statusClass = [
-                                        'pending' => 'warning',
-                                        'approved' => 'success',
-                                        'rejected' => 'danger',
-                                        'completed' => 'info',
-                                    ][strtolower($travelOrder->status->name)] ?? 'secondary';
-                                @endphp
-                                <span class="badge bg-{{ $statusClass }}">
-                                    {{ $travelOrder->status->name }}
-                                </span>
-                            </td>
-                            <td>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Region</th>
+                            <th>Officer In Charge</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($stations as $station)
+                            <tr>
+                                <td>{{ $station->code }}</td>
+                                <td>{{ $station->name }}</td>
+                                <td>{{ $station->region->name }}</td>
+                                <td>{{ $station->officer_in_charge }}</td>
+                                <td>
+                                    <span class="badge {{ $station->is_active ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $station->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td>
                                 <div class="d-flex gap-2">
                                     <!-- View Button -->
                                     <div class="action-btn">
-                                        <a href="{{ route('travel-orders.show', $travelOrder) }}" 
+                                        <a href="{{ route('official-stations.show', $station) }}" 
                                            class="btn btn-outline-primary btn-action" 
                                            data-bs-toggle="tooltip" 
                                            data-bs-placement="top" 
@@ -61,7 +66,7 @@
                                     
                                     <!-- Edit Button -->
                                     <div class="action-btn">
-                                        <a href="{{ route('travel-orders.edit', $travelOrder) }}" 
+                                        <a href="{{ route('official-stations.edit', $station) }}" 
                                            class="btn btn-outline-warning btn-action" 
                                            data-bs-toggle="tooltip" 
                                            data-bs-placement="top" 
@@ -72,10 +77,10 @@
                                     
                                     <!-- Delete Button -->
                                     <div class="action-btn">
-                                        <form action="{{ route('travel-orders.destroy', $travelOrder) }}" 
+                                        <form action="{{ route('official-stations.destroy', $station) }}" 
                                               method="POST" 
                                               class="d-inline" 
-                                              onsubmit="return confirm('Are you sure you want to delete this travel order? This action cannot be undone.');">
+                                              onsubmit="return confirm('Are you sure you want to delete this official station? This action cannot be undone.');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" 
@@ -88,23 +93,23 @@
                                         </form>
                                     </div>
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center">No travel orders found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="d-flex justify-content-between align-items-center mt-4">
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">No official stations found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-4">
             <div class="text-muted">
-                Showing {{ $travelOrders->firstItem() }} to {{ $travelOrders->lastItem() }} of {{ $travelOrders->total() }} entries
+                Showing {{ $stations->firstItem() }} to {{ $stations->lastItem() }} of {{ $stations->total() }} entries
             </div>
             <nav aria-label="Page navigation">
-                {{ $travelOrders->onEachSide(1)->links('pagination::bootstrap-4') }}
+                {{ $stations->onEachSide(1)->links('pagination::bootstrap-4') }}
             </nav>
         </div>
     </div>

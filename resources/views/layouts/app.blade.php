@@ -37,9 +37,26 @@
 
                 @auth
                     @if(auth()->user()->is_admin)
-                    <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
-                        <i class="fas fa-file-alt"></i> Users
-                    </a>
+
+                    <hr>
+                    
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">User Management</div>
+                        <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Location Management</div>
+                        <a href="{{ route('regions.index') }}" class="{{ request()->routeIs('regions.*') ? 'active' : '' }}">
+                            <i class="fas fa-map-marker-alt"></i> Regions
+                        </a>
+                        <a href="{{ route('official-stations.index') }}" class="{{ request()->routeIs('official-stations.*') ? 'active' : '' }}">
+                            <i class="fas fa-building"></i> Official Stations
+                        </a>
+                    </div>
+                    
                     @endif
                 @endauth
 

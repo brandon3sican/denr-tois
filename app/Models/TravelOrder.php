@@ -12,8 +12,10 @@ class TravelOrder extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'region',
+        'region_id',
         'address',
+        'contact_number',
+        'email',
         'date',
         'travel_order_no',
         'employee_id',
@@ -48,6 +50,11 @@ class TravelOrder extends Model
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
+    }
+    
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class);
     }
 
     public function status(): BelongsTo

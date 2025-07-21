@@ -1,56 +1,61 @@
 @extends('layouts.app')
 
-@section('title', 'Travel Orders')
-
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Travel Orders</h1>
-    <a href="{{ route('travel-orders.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Create Travel Order
-    </a>
-</div>
+<div class="container">
+    <div class="row justify-content-between align-items-center mb-4">
+        <div class="col-auto">
+            <h1>Regions</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{{ route('regions.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Region
+            </a>
+        </div>
+    </div>
 
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Travel Order No.</th>
-                        <th>Employee</th>
-                        <th>Destination</th>
-                        <th>Departure Date</th>
-                        <th>Arrival Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($travelOrders as $travelOrder)
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
                         <tr>
-                            <td>{{ $travelOrder->travel_order_no }}</td>
-                            <td>{{ $travelOrder->full_name }}</td>
-                            <td>{{ $travelOrder->destination }}</td>
-                            <td>{{ \Carbon\Carbon::parse($travelOrder->departure_date)->format('M d, Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($travelOrder->arrival_date)->format('M d, Y') }}</td>
-                            <td>
-                                @php
-                                    $statusClass = [
-                                        'pending' => 'warning',
-                                        'approved' => 'success',
-                                        'rejected' => 'danger',
-                                        'completed' => 'info',
-                                    ][strtolower($travelOrder->status->name)] ?? 'secondary';
-                                @endphp
-                                <span class="badge bg-{{ $statusClass }}">
-                                    {{ $travelOrder->status->name }}
-                                </span>
-                            </td>
-                            <td>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Regional Center</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($regions as $region)
+                            <tr>
+                                <td>{{ $region->code }}</td>
+                                <td>{{ $region->name }}</td>
+                                <td>{{ $region->region_center }}</td>
+                                <td>
+                                    <span class="badge {{ $region->is_active ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $region->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td>{{ $region->created_at->format('M d, Y') }}</td>
+                                <td>
                                 <div class="d-flex gap-2">
                                     <!-- View Button -->
                                     <div class="action-btn">
-                                        <a href="{{ route('travel-orders.show', $travelOrder) }}" 
+                                        <a href="{{ route('regions.show', $region) }}" 
                                            class="btn btn-outline-primary btn-action" 
                                            data-bs-toggle="tooltip" 
                                            data-bs-placement="top" 
@@ -61,7 +66,7 @@
                                     
                                     <!-- Edit Button -->
                                     <div class="action-btn">
-                                        <a href="{{ route('travel-orders.edit', $travelOrder) }}" 
+                                        <a href="{{ route('regions.edit', $region) }}" 
                                            class="btn btn-outline-warning btn-action" 
                                            data-bs-toggle="tooltip" 
                                            data-bs-placement="top" 
@@ -72,10 +77,10 @@
                                     
                                     <!-- Delete Button -->
                                     <div class="action-btn">
-                                        <form action="{{ route('travel-orders.destroy', $travelOrder) }}" 
+                                        <form action="{{ route('regions.destroy', $region) }}" 
                                               method="POST" 
                                               class="d-inline" 
-                                              onsubmit="return confirm('Are you sure you want to delete this travel order? This action cannot be undone.');">
+                                              onsubmit="return confirm('Are you sure you want to delete this region? This action cannot be undone.');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" 
@@ -88,23 +93,23 @@
                                         </form>
                                     </div>
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center">No travel orders found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="d-flex justify-content-between align-items-center mt-4">
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">No regions found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mt-4">
             <div class="text-muted">
-                Showing {{ $travelOrders->firstItem() }} to {{ $travelOrders->lastItem() }} of {{ $travelOrders->total() }} entries
+                Showing {{ $regions->firstItem() }} to {{ $regions->lastItem() }} of {{ $regions->total() }} entries
             </div>
             <nav aria-label="Page navigation">
-                {{ $travelOrders->onEachSide(1)->links('pagination::bootstrap-4') }}
+                {{ $regions->onEachSide(1)->links('pagination::bootstrap-4') }}
             </nav>
         </div>
     </div>

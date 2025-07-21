@@ -197,11 +197,27 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
+/* Sidebar Sections */
+.sidebar-section {
+    margin-bottom: 15px;
+}
+
+.sidebar-section-title {
+    color: var(--gray);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 20px 5px;
+    margin-top: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .sidebar nav a {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 15px 20px;
+    padding: 12px 20px;
     text-decoration: none;
     color: #333;
     border-radius: 12px;

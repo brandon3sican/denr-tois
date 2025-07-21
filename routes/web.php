@@ -5,14 +5,22 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\TravelOrderController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RegionController;
+use App\Http\Controllers\OfficialStationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\API\OfficialStationController as APIOfficialStationController;
 
 // Dashboard Route
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->name('dashboard')
+    ->middleware('auth');
+
+// API Routes
+Route::get('/api/regions/{region}/stations', [APIOfficialStationController::class, 'getByRegion'])
+    ->name('api.regions.stations')
     ->middleware('auth');
 
 // Home Route - Redirect to dashboard for authenticated users
@@ -53,8 +61,18 @@ Route::middleware(['auth'])->group(function () {
     // User Management Routes
     Route::resource('users', UserController::class);
     
+    // Region Management Routes
+    Route::resource('regions', RegionController::class)->except(['show']);
+    
+    // Official Station Management Routes
+    Route::resource('official-stations', OfficialStationController::class)->except(['show']);
+    
     // Home Route for authenticated users
     Route::get('/home', function () {
         return redirect()->route('employees.index');
     })->name('home');
 });
+
+// Public routes for viewing regions and stations
+Route::get('regions/{region}', [RegionController::class, 'show'])->name('regions.show');
+Route::get('official-stations/{officialStation}', [OfficialStationController::class, 'show'])->name('official-stations.show');

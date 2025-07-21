@@ -49,6 +49,22 @@
                         <td>{{ $travelOrder->full_name }}</td>
                     </tr>
                     <tr>
+                        <th>Region:</th>
+                        <td>{{ $travelOrder->region->name ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Address:</th>
+                        <td>{{ $travelOrder->address ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Contact Number:</th>
+                        <td>{{ $travelOrder->contact_number ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ $travelOrder->email ?? 'N/A' }}</td>
+                    </tr>
+                    <tr>
                         <th>Position:</th>
                         <td>{{ $travelOrder->position }}</td>
                     </tr>

@@ -110,10 +110,38 @@
                     @enderror
                 </div>
                 <div class="col-md-6">
+                    <label for="region_id" class="form-label">Region *</label>
+                    <select class="form-select @error('region_id') is-invalid @enderror" id="region_id" name="region_id" required>
+                        <option value="" disabled>Select Region</option>
+                        @foreach($regions as $region)
+                            <option value="{{ $region->id }}" 
+                                    data-address="{{ $region->address }}"
+                                    data-contact-number="{{ $region->contact_number }}"
+                                    data-email="{{ $region->email }}"
+                                    {{ old('region_id', $travelOrder->region_id) == $region->id ? 'selected' : '' }}>
+                                {{ $region->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('region_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="address" class="form-label">Complete Address *</label>
+                    <input type="text" class="form-control @error('address') is-invalid @enderror" 
+                           id="address" name="address" value="{{ old('address', $travelOrder->address) }}" required>
+                    @error('address')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
                     <label for="destination" class="form-label">Destination *</label>
                     <input type="text" class="form-control @error('destination') is-invalid @enderror" 
-                           id="destination" name="destination" 
-                           value="{{ old('destination', $travelOrder->destination) }}" required>
+                           id="destination" name="destination" value="{{ old('destination', $travelOrder->destination) }}" required>
                     @error('destination')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -273,6 +301,37 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Handle region selection
+        const regionSelect = document.getElementById('region_id');
+        const addressInput = document.getElementById('address');
+        const contactNumberInput = document.getElementById('contact_number');
+        const emailInput = document.getElementById('email');
+        
+        if (regionSelect) {
+            // Set initial values if editing
+            if (regionSelect.value) {
+                const selectedOption = regionSelect.options[regionSelect.selectedIndex];
+                if (selectedOption) {
+                    addressInput.value = selectedOption.dataset.address || '';
+                    contactNumberInput.value = selectedOption.dataset.contactNumber || '{{ old('contact_number', $travelOrder->contact_number) }}';
+                    emailInput.value = selectedOption.dataset.email || '{{ old('email', $travelOrder->email) }}';
+                }
+            }
+            
+            regionSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.value) {
+                    addressInput.value = selectedOption.dataset.address || '';
+                    contactNumberInput.value = selectedOption.dataset.contactNumber || '';
+                    emailInput.value = selectedOption.dataset.email || '';
+                } else {
+                    addressInput.value = '';
+                    contactNumberInput.value = '';
+                    emailInput.value = '';
+                }
+            });
+        }
+
         // Auto-fill employee details when selected
         const employeeSelect = document.getElementById('employee_id');
         const positionInput = document.getElementById('position');
