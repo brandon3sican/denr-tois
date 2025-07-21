@@ -189,74 +189,55 @@
                 </div>
                 <div class="card-body">
                     <div id="signatories-container">
-                        @if(old('signatories') && is_array(old('signatories')))
-                            @foreach(old('signatories') as $index => $signatory)
-                                <div class="row mb-3 signatory-row">
-                                    <div class="col-md-5">
-                                        <label class="form-label">Employee *</label>
-                                        <select class="form-select signatory-employee" name="signatories[{{ $index }}][employee_id]" required>
-                                            <option value="" disabled selected>Select Employee</option>
-                                            @foreach($employees as $employee)
-                                                <option value="{{ $employee->id }}" {{ $signatory['employee_id'] == $employee->id ? 'selected' : '' }}>
-                                                    {{ $employee->full_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <label class="form-label">Role *</label>
-                                        <select class="form-select" name="signatories[{{ $index }}][user_type_id]" required>
-                                            <option value="" disabled selected>Select Role</option>
-                                            @foreach($userTypes as $type)
-                                                <option value="{{ $type->id }}" {{ $signatory['user_type_id'] == $type->id ? 'selected' : '' }}>
-                                                    {{ $type->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2 d-flex align-items-end">
-                                        <button type="button" class="btn btn-danger btn-sm remove-signatory" style="margin-bottom: 1rem;">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="row mb-3 signatory-row">
-                                <div class="col-md-5">
-                                    <label class="form-label">Employee *</label>
-                                    <select class="form-select signatory-employee" name="signatories[0][employee_id]" required>
-                                        <option value="" disabled selected>Select Employee</option>
-                                        @foreach($employees as $employee)
-                                            <option value="{{ $employee->id }}">
-                                                {{ $employee->full_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-5">
-                                    <label class="form-label">Role *</label>
-                                    <select class="form-select" name="signatories[0][user_type_id]" required>
-                                        <option value="" disabled selected>Select Role</option>
-                                        @foreach($userTypes as $type)
-                                            <option value="{{ $type->id }}">
-                                                {{ $type->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-2 d-flex align-items-end">
-                                    <button type="button" class="btn btn-danger btn-sm remove-signatory" style="margin-bottom: 1rem;">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
+                        @php
+                            // Get recommender and approver user type IDs
+                            $recommenderType = $userTypes->firstWhere('name', 'Recommender');
+                            $approverType = $userTypes->firstWhere('name', 'Approver');
+                            
+                            $oldSignatories = old('signatories', []);
+                            $recommender = $oldSignatories ? collect($oldSignatories)->firstWhere('user_type_id', $recommenderType ? $recommenderType->id : null) : null;
+                            $approver = $oldSignatories ? collect($oldSignatories)->firstWhere('user_type_id', $approverType ? $approverType->id : null) : null;
+                        @endphp
+                        
+                        <!-- Recommender -->
+                        <div class="row mb-3 signatory-row">
+                            <div class="col-md-10">
+                                <label class="form-label">Recommender *</label>
+                                <select class="form-select signatory-employee" name="signatories[0][employee_id]" required data-role="recommender">
+                                    <option value="" disabled selected>Select Recommender</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->id }}" 
+                                            {{ ($recommender && $recommender['employee_id'] == $employee->id) ? 'selected' : '' }}
+                                            data-fullname="{{ $employee->full_name }}">
+                                            {{ $employee->full_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="signatories[0][user_type_id]" value="{{ $recommenderType ? $recommenderType->id : '' }}">
                             </div>
-                        @endif
-                    </div>
-                    
-                    <button type="button" id="add-signatory" class="btn btn-sm btn-secondary mt-2">
-                        <i class="fas fa-plus"></i> Add Signatory
-                    </button>
+                        </div>
+                        
+                        <!-- Approver -->
+                        <div class="row mb-3 signatory-row">
+                            <div class="col-md-10">
+                                <label class="form-label">Approver *</label>
+                                <select class="form-select signatory-employee" name="signatories[1][employee_id]" required data-role="approver">
+                                    <option value="" disabled selected>Select Approver</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->id }}"
+                                            {{ ($approver && $approver['employee_id'] == $employee->id) ? 'selected' : '' }}
+                                            data-fullname="{{ $employee->full_name }}">
+                                            {{ $employee->full_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="signatories[1][user_type_id]" value="{{ $approverType ? $approverType->id : '' }}">
+                            </div>
+                        </div>
+                        
+                        <div id="signatory-error" class="text-danger mb-3" style="display: none;">
+                            Recommender and Approver must be different people.
+                        </div>
                 </div>
             </div>
 
@@ -313,75 +294,41 @@
             }
         }
 
-        // Add signatory row
-        const addSignatoryBtn = document.getElementById('add-signatory');
-        const signatoriesContainer = document.getElementById('signatories-container');
-        let signatoryCount = {{ old('signatories') ? count(old('signatories')) : 1 }};
+        // Get recommender and approver selects
+        const recommenderSelect = document.querySelector('select[data-role="recommender"]');
+        const approverSelect = document.querySelector('select[data-role="approver"]');
+        const signatoryError = document.getElementById('signatory-error');
 
-        if (addSignatoryBtn) {
-            addSignatoryBtn.addEventListener('click', function() {
-                const newRow = document.createElement('div');
-                newRow.className = 'row mb-3 signatory-row';
-                newRow.innerHTML = `
-                    <div class="col-md-5">
-                        <label class="form-label">Employee *</label>
-                        <select class="form-control signatory-employee" name="signatories[${signatoryCount}][employee_id]" required>
-                            <option value="" disabled selected>Select Employee</option>
-                            @foreach($employees as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->full_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-5">
-                        <label class="form-label">Role *</label>
-                        <select class="form-control" name="signatories[${signatoryCount}][user_type_id]" required>
-                            <option value="" disabled selected>Select Role</option>
-                            @foreach($userTypes as $type)
-                                <option value="{{ $type->id }}">{{ $type->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-danger btn-sm remove-signatory" style="margin-bottom: 1rem;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `;
-                
-                signatoriesContainer.appendChild(newRow);
-                signatoryCount++;
-            });
+        // Function to validate signatories
+        function validateSignatories() {
+            if (!recommenderSelect || !approverSelect) return true;
+            
+            const recommenderId = recommenderSelect.value;
+            const approverId = approverSelect.value;
+            
+            if (recommenderId && approverId && recommenderId === approverId) {
+                signatoryError.style.display = 'block';
+                return false;
+            } else {
+                signatoryError.style.display = 'none';
+                return true;
+            }
         }
 
-        // Remove signatory row
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.remove-signatory')) {
-                const row = e.target.closest('.signatory-row');
-                if (document.querySelectorAll('.signatory-row').length > 1) {
-                    row.remove();
-                    // Reindex the signatories
-                    const rows = document.querySelectorAll('.signatory-row');
-                    rows.forEach((row, index) => {
-                        row.querySelectorAll('select, input').forEach(input => {
-                            input.name = input.name.replace(/\[\d+\]/, `[${index}]`);
-                        });
-                    });
-                    signatoryCount = rows.length;
-                } else {
-                    alert('At least one signatory is required.');
-                }
-            }
-        });
+        // Add validation on change
+        if (recommenderSelect && approverSelect) {
+            recommenderSelect.addEventListener('change', validateSignatories);
+            approverSelect.addEventListener('change', validateSignatories);
+        }
 
         // Form validation
         const form = document.getElementById('travelOrderForm');
         if (form) {
             form.addEventListener('submit', function(e) {
-                // Check if at least one signatory is added
-                const signatoryRows = document.querySelectorAll('.signatory-row');
-                if (signatoryRows.length === 0) {
+                // Validate signatories
+                if (!validateSignatories()) {
                     e.preventDefault();
-                    alert('Please add at least one signatory.');
+                    signatoryError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return false;
                 }
 
