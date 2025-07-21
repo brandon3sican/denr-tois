@@ -69,10 +69,31 @@ class EmployeeController extends Controller
             'employment_status_id' => 'required|exists:employment_statuses,id',
         ]);
 
-        Employee::create($validated);
+        // Create the employee
+        $employee = Employee::create($validated);
+
+        // Generate username (firstname.lastname)
+        $username = strtolower($validated['first_name'] . '.' . $validated['last_name']);
+        $username = preg_replace('/[^a-z0-9.]/', '', $username); // Remove special chars
+        
+        // Check if username exists and make it unique if needed
+        $originalUsername = $username;
+        $counter = 1;
+        while (\App\Models\User::where('username', $username)->exists()) {
+            $username = $originalUsername . $counter;
+            $counter++;
+        }
+
+        // Create user account for the employee
+        $user = new \App\Models\User();
+        $user->username = $username;
+        $user->password = \Illuminate\Support\Facades\Hash::make('password123'); // Default password
+        $user->is_admin = false; // Default to regular user
+        $user->employee_id = $employee->id;
+        $user->save();
 
         return redirect()->route('employees.index')
-            ->with('success', 'Employee created successfully.');
+            ->with('success', 'Employee and user account created successfully. Default password: password123');
     }
 
     public function show(Employee $employee)

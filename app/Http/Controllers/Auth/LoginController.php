@@ -67,7 +67,8 @@ class LoginController extends Controller
     {
         $request->session()->regenerate();
 
-        return redirect()->intended(route('employees.index'));
+        // Always redirect to dashboard after login
+        return redirect()->route('dashboard');
     }
 
     /**

@@ -13,22 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create default admin user if it doesn't exist
-        if (!User::where('username', 'admin')->exists()) {
-            User::create([
-                'username' => 'admin',
-                'password' => Hash::make('admin123'),
-                'is_admin' => true,
-            ]);
-            $this->command->info('Admin user created successfully!');
-        }
-
         // Seed reference data
         $this->call([
             ReferenceDataSeeder::class,
             RegionAndStationSeeder::class,
-            SampleDataSeeder::class, // Our new seeder with sample employees and users
-            // EmployeeAndTravelOrderSeeder::class, // Commented out as we're using SampleDataSeeder
+            SampleDataSeeder::class,
         ]);
     }
 }

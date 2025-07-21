@@ -3,17 +3,10 @@
 @section('title', 'User Accounts')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>User Accounts</h1>
+</div>
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>User Accounts</span>
-                    <a href="{{ route('users.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add New User
-                    </a>
-                </div>
-
                 <div class="card-body">
                     @if (session('success'))
                         <div class="alert alert-success" role="alert">
@@ -131,9 +124,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 @endsection
 
 @push('styles')

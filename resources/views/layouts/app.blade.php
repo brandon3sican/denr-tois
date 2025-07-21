@@ -57,21 +57,28 @@
                         </p>
                     </div>
                 </div>
-                <div class="user-actions">
+                <div class="user-actions" style="position: relative;">
                     <div class="dropdown">
                         <button class="btn btn-light rounded-pill px-3 py-1 dropdown-toggle d-flex align-items-center" 
-                                type="button" id="userDropdown" data-bs-toggle="dropdown" 
-                                aria-expanded="false">
+                                type="button" 
+                                id="userDropdown" 
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false" 
+                                style="position: relative; z-index: 1;">
                             <i class="fas fa-user-circle me-2" style="color: var(--denr-primary);"></i>
-                            
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="userDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg" 
+                            aria-labelledby="userDropdown"
+                            style="min-width: 200px; position: fixed; z-index: 99999;">
                             <li class="text-center">
-                                <span class="fw-bold" style="color: var(--denr-primary);">{{ Auth::user()->employee->full_name ?? Auth::user()->username }}</span>
+                                <span class="fw-bold d-block px-3 py-1" style="color: var(--denr-primary);">
+                                    {{ Auth::user()->employee->full_name ?? Auth::user()->username }}
+                                </span>
                             </li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li><hr class="dropdown-divider my-1"></li>
                             <li class="text-center">
-                                <a class="dropdown-item text-danger" href="{{ route('logout') }}" 
+                                <a class="dropdown-item text-danger d-flex align-items-center justify-content-center" 
+                                   href="{{ route('logout') }}" 
                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a>
@@ -111,6 +118,7 @@
     </script>
     
     <script src="{{ asset('script.js') }}"></script>
+    <script src="{{ asset('js/dropdown-fix.js') }}"></script>
     @stack('scripts')
 </body>
 </html>
