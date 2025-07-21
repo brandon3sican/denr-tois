@@ -4,27 +4,40 @@
 This document details the employee management system in the DENR TOIS application, covering user profiles, organizational structure, and access control.
 
 ## Features
-- Employee directory
-- Profile management
-- Organizational chart
-- Position tracking
-- Department/Division management
+- **Employee Directory**
+  - Comprehensive employee listing with search and filters
+  - Detailed employee profiles
+  - Sortable columns and pagination
+
+- **Organizational Structure**
+  - Divisions/Sections/Units management
+  - Hierarchical organizational chart
+  - Department categorization
+
+- **Position Management**
+  - Position creation and maintenance
+  - Salary grade tracking
+  - Position descriptions and requirements
+
+- **Employment Status**
+  - Active/Inactive status tracking
+  - Employment type management (Permanent, Contract of Service, Job Order, etc.)
+  - Status history tracking
 
 ## Database Schema
 
 ### Tables
 - `employees` - Core employee information
-- `positions` - Job positions
-- `divisions` - Organizational units
-- `departments` - Department categorization
-- `employment_statuses` - Employment status tracking
+- `positions` - Job positions with salary grades
+- `div_sec_units` - Divisions, Sections, and Units
+- `employment_statuses` - Employment status tracking with active/inactive flag
 - `users` - User accounts (linked to employees)
 
 ### Key Relationships
 - One-to-one: Employee ↔ User
 - Many-to-one: Employee → Position
-- Many-to-one: Employee → Division
-- Many-to-one: Employee → Department
+- Many-to-one: Employee → DivSecUnit
+- Many-to-one: Employee → EmploymentStatus
 
 ## User Interface
 

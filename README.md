@@ -22,10 +22,13 @@ The DENR Travel Order Information System (TOIS) is a web-based application desig
 - **Employee Management**
   - Employee records with personal information
   - Position and department tracking
-  - Employment status monitoring
-  - Sortable employee listings by name, position, department, and status
+  - Employment status monitoring with active/inactive status
+  - Comprehensive Divisions/Sections/Units management
+  - Position management with salary grades
+  - Sortable listings with pagination and search
   - Default sort by creation date (newest first)
   - Unique user account association
+  - Responsive UI with consistent styling
 
 - **Travel Order Management**
   - Create and submit travel orders

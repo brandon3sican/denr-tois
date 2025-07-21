@@ -5,11 +5,17 @@ This document describes the database schema for the DENR Travel Order Informatio
 
 ## Key Relationships
 
-### Employee-User Relationship
+### Employee Relationships
 - Each employee can have **exactly one** user account
-- Each user account can be associated with **at most one** employee
-- The admin user has a dedicated employee record
-- Employee-user relationships are enforced at both the database and application levels
+- Each employee belongs to one **position**
+- Each employee belongs to one **division/section/unit**
+- Each employee has one **employment status**
+- Employee relationships are enforced at both the database and application levels
+
+### Reference Data Relationships
+- **Positions** can be assigned to multiple employees
+- **Divisions/Sections/Units** can contain multiple employees
+- **Employment Statuses** can be assigned to multiple employees
 
 ## Sorting and Querying
 
@@ -17,10 +23,12 @@ This document describes the database schema for the DENR Travel Order Informatio
 - Default sort: `created_at DESC` (newest first)
 - Sortable columns:
   - `first_name` - Employee's first name
+  - `last_name` - Employee's last name
   - `position_id` - Sorts by position name
-  - `div_sec_unit_id` - Sorts by division/unit name
+  - `div_sec_unit_id` - Sorts by division/section/unit name
   - `employment_status_id` - Sorts by employment status name
   - `created_at` - Date of record creation
+  - `updated_at` - Date of last update
 
 ### User Listings
 - Default sort: `created_at DESC` (newest first)
@@ -32,13 +40,59 @@ This document describes the database schema for the DENR Travel Order Informatio
 
 ## Tables
 
-### 1. users
+## Reference Data Tables
+
+### 1. positions
+Stores job positions within the organization.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | bigint | Primary key |
+| name | string | Position name (e.g., 'Environmental Management Specialist II') |
+| salary_grade | integer | Salary grade for the position |
+| description | text | Detailed description of the position |
+| created_at | timestamp | When the record was created |
+| updated_at | timestamp | When the record was last updated |
+
+**Relationships:**
+- Has many `employees`
+
+### 2. div_sec_units
+Stores organizational units (Divisions, Sections, Units).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | bigint | Primary key |
+| name | string | Unit name (e.g., 'Technical Services Division') |
+| description | text | Additional details about the unit |
+| created_at | timestamp | When the record was created |
+| updated_at | timestamp | When the record was last updated |
+
+**Relationships:**
+- Has many `employees`
+
+### 3. employment_statuses
+Stores employment status types.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | bigint | Primary key |
+| name | string | Status name (e.g., 'Permanent', 'Contract of Service') |
+| description | text | Additional details about the status |
+| is_active | boolean | Whether this status is currently active |
+| created_at | timestamp | When the record was created |
+| updated_at | timestamp | When the record was last updated |
+
+**Relationships:**
+- Has many `employees`
+
+### 4. users
 Stores user account information for system access.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | bigint | Primary key |
-| username | string | Unique username for login (auto-generated as first initial + last name) |
+| username | string | Unique username for login |
 | password | string | Hashed password using Laravel's bcrypt |
 | is_admin | boolean | Whether the user has admin privileges |
 | employee_id | bigint | Foreign key to employees table (unique, nullable for admin) |
@@ -48,6 +102,7 @@ Stores user account information for system access.
 
 **Indexes:**
 - Unique index on `username`
+- Unique index on `employee_id`
 - Unique index on `employee_id` (allows one null for admin)
 
 ### 2. employees
