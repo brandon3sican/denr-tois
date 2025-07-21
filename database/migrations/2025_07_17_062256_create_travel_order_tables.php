@@ -53,7 +53,7 @@ return new class extends Migration
             
             // Allowances and Approvals
             $table->decimal('per_diem_expenses', 12, 2)->default(0);
-            $table->boolean('assistant_or_laborers_allowed')->default(false);
+            $table->integer('assistant_or_laborers_allowed')->default(0);
             $table->string('appropriations')->nullable();
             $table->text('remarks')->nullable();
             

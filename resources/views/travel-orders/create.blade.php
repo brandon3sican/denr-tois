@@ -30,28 +30,36 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label for="employee_id" class="form-label">Employee *</label>
-                <select class="form-select @error('employee_id') is-invalid @enderror" id="employee_id" name="employee_id" required>
-                    <option value="" disabled selected>Select Employee</option>
-                    @foreach($employees as $employee)
-                        <option value="{{ $employee->id }}" data-position="{{ $employee->position->name ?? '' }}" 
-                                data-division="{{ $employee->divSecUnit->name ?? '' }}" data-salary="{{ $employee->salary ?? 0 }}"
-                                {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                            {{ $employee->full_name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('employee_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
+            @if($isAdmin)
+                <div class="mb-3">
+                    <label for="employee_id" class="form-label">Employee *</label>
+                    <select class="form-select @error('employee_id') is-invalid @enderror" id="employee_id" name="employee_id" required>
+                        <option value="" disabled selected>Select Employee</option>
+                        @foreach($employees as $employee)
+                            <option value="{{ $employee->id }}" 
+                                    data-position="{{ $employee->position->name ?? '' }}" 
+                                    data-division="{{ $employee->divSecUnit->name ?? '' }}" 
+                                    data-salary="{{ $employee->salary ?? 0 }}"
+                                    data-fullname="{{ $employee->full_name }}"
+                                    data-official-station="{{ $employee->official_station ?? 'Not specified' }}"
+                                    {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->full_name }} - {{ $employee->position->name ?? '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('employee_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            @else
+                <input type="hidden" name="employee_id" value="{{ $employee->id ?? '' }}">
+            @endif
 
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label for="position" class="form-label">Position *</label>
                     <input type="text" class="form-control @error('position') is-invalid @enderror" 
-                           id="position" name="position" value="{{ old('position') }}" required readonly>
+                           id="position" name="position" value="{{ $isAdmin ? old('position') : ($employee->position->name ?? '') }}" required readonly>
                     @error('position')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -59,7 +67,7 @@
                 <div class="col-md-4">
                     <label for="div_sec_unit" class="form-label">Division/Section/Unit *</label>
                     <input type="text" class="form-control @error('div_sec_unit') is-invalid @enderror" 
-                           id="div_sec_unit" name="div_sec_unit" value="{{ old('div_sec_unit') }}" required readonly>
+                           id="div_sec_unit" name="div_sec_unit" value="{{ $isAdmin ? old('div_sec_unit') : ($employee->divSecUnit->name ?? '') }}" required readonly>
                     @error('div_sec_unit')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -69,7 +77,7 @@
                     <div class="input-group">
                         <span class="input-group-text">₱</span>
                         <input type="number" step="0.01" class="form-control @error('salary') is-invalid @enderror" 
-                               id="salary" name="salary" value="{{ old('salary') }}" required readonly>
+                               id="salary" name="salary" value="{{ $isAdmin ? old('salary') : ($employee->position->salary ?? '0.00') }}" required readonly>
                     </div>
                     @error('salary')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -79,6 +87,33 @@
 
             <div class="row mb-3">
                 <div class="col-md-6">
+                    <label for="full_name" class="form-label">Full Name *</label>
+                    <input type="text" class="form-control @error('full_name') is-invalid @enderror" 
+                           id="full_name" name="full_name" value="{{ $isAdmin ? old('full_name') : ($employee->full_name ?? '') }}" required readonly>
+                    @error('full_name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-6">
+                    <label for="official_station" class="form-label">Official Station *</label>
+                    <input type="text" class="form-control @error('official_station') is-invalid @enderror" 
+                           id="official_station" name="official_station" value="{{ $isAdmin ? old('official_station') : ($employee->official_station ?? 'Not specified') }}" required readonly>
+                    @error('official_station')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="destination" class="form-label">Destination *</label>
+                    <input type="text" class="form-control @error('destination') is-invalid @enderror" 
+                           id="destination" name="destination" value="{{ old('destination') }}" required>
+                    @error('destination')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4">
                     <label for="departure_date" class="form-label">Departure Date *</label>
                     <input type="date" class="form-control @error('departure_date') is-invalid @enderror" 
                            id="departure_date" name="departure_date" value="{{ old('departure_date') }}" required>
@@ -86,30 +121,11 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="arrival_date" class="form-label">Arrival Date *</label>
                     <input type="date" class="form-control @error('arrival_date') is-invalid @enderror" 
                            id="arrival_date" name="arrival_date" value="{{ old('arrival_date') }}" required>
                     @error('arrival_date')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="official_station" class="form-label">Official Station *</label>
-                    <input type="text" class="form-control @error('official_station') is-invalid @enderror" 
-                           id="official_station" name="official_station" value="{{ old('official_station') }}" required>
-                    @error('official_station')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="col-md-6">
-                    <label for="destination" class="form-label">Destination *</label>
-                    <input type="text" class="form-control @error('destination') is-invalid @enderror" 
-                           id="destination" name="destination" value="{{ old('destination') }}" required>
-                    @error('destination')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -137,41 +153,24 @@
                     @enderror
                 </div>
                 <div class="col-md-4">
-                    <div class="form-check mt-4 pt-3">
-                        <input class="form-check-input @error('assistant_or_laborers_allowed') is-invalid @enderror" 
-                               type="checkbox" id="assistant_or_laborers_allowed" name="assistant_or_laborers_allowed" 
-                               value="1" {{ old('assistant_or_laborers_allowed') ? 'checked' : '' }}>
-                        <label class="form-check-label" for="assistant_or_laborers_allowed">
-                            Assistant or Laborers Allowed
-                        </label>
-                        @error('assistant_or_laborers_allowed')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                <label for="per_diem_expenses" class="form-label">Assistant or Laborers allowed *</label>
+                    <div class="input-group">
+                        <input type="number" step="1" class="form-control @error('assistant_or_laborers_allowed') is-invalid @enderror" 
+                               id="assistant_or_laborers_allowed" name="assistant_or_laborers_allowed" value="{{ old('assistant_or_laborers_allowed', 0) }}" required>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <label for="status_id" class="form-label">Status *</label>
-                    <select class="form-select @error('status_id') is-invalid @enderror" id="status_id" name="status_id" required>
-                        <option value="" disabled selected>Select Status</option>
-                        @foreach($statuses as $status)
-                            <option value="{{ $status->id }}" {{ old('status_id') == $status->id ? 'selected' : '' }}>
-                                {{ $status->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('status_id')
+                    @error('assistant_or_laborers_allowed')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="appropriations" class="form-label">Appropriations</label>
-                <input type="text" class="form-control @error('appropriations') is-invalid @enderror" 
-                       id="appropriations" name="appropriations" value="{{ old('appropriations') }}">
-                @error('appropriations')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                <input type="hidden" name="status_id" value="{{ $status_id }}">
+                <div class="col-md-4">
+                    <label for="appropriations" class="form-label">Appropriations *</label>
+                    <input type="text" class="form-control @error('appropriations') is-invalid @enderror" 
+                        id="appropriations" name="appropriations" value="{{ old('appropriations') }}">
+                    @error('appropriations')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
             <div class="mb-3">
@@ -267,30 +266,69 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Auto-fill employee details when selected
+        // Auto-fill employee details when selected or on page load for non-admin
         const employeeSelect = document.getElementById('employee_id');
         const fullNameInput = document.getElementById('full_name');
         const positionInput = document.getElementById('position');
         const divisionInput = document.getElementById('div_sec_unit');
         const salaryInput = document.getElementById('salary');
+        const officialStationInput = document.getElementById('official_station');
+        const dateInput = document.getElementById('date');
+        const isAdmin = {{ $isAdmin ? 'true' : 'false' }};
 
-        if (employeeSelect) {
-            employeeSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
+        // Store position salaries for admin users
+        const positionSalaries = {};
+        @if($isAdmin)
+            @foreach($employees as $emp)
+                @if($emp->position)
+                    positionSalaries['{{ $emp->position->name }}'] = {{ $emp->position->salary ?? '0' }};
+                @endif
+            @endforeach
+        @endif
+
+        // Function to update employee details
+        function updateEmployeeDetails() {
+            if (isAdmin && employeeSelect) {
+                const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
                 if (selectedOption.value) {
-                    positionInput.value = selectedOption.dataset.position;
-                    divisionInput.value = selectedOption.dataset.division;
-                    salaryInput.value = selectedOption.dataset.salary || '0.00';
+                    const position = selectedOption.dataset.position || '';
+                    fullNameInput.value = selectedOption.dataset.fullname || '';
+                    positionInput.value = position;
+                    divisionInput.value = selectedOption.dataset.division || '';
+                    
+                    // Get salary from position data
+                    const salary = positionSalaries[position] || 0;
+                    salaryInput.value = salary ? parseFloat(salary).toFixed(2) : '0.00';
+                    
+                    officialStationInput.value = selectedOption.dataset.officialStation || 'Not specified';
                 } else {
-                    positionInput.value = '';
-                    divisionInput.value = '';
-                    salaryInput.value = '0.00';
+                    clearEmployeeFields();
                 }
-            });
+            }
+            
+            // Set current date if not already set
+            if (!dateInput.value) {
+                const today = new Date();
+                dateInput.value = today.toISOString().split('T')[0];
+            }
+        }
 
+        function clearEmployeeFields() {
+            fullNameInput.value = '';
+            positionInput.value = '';
+            divisionInput.value = '';
+            salaryInput.value = '0.00';
+            officialStationInput.value = '';
+        }
+
+        // For non-admin users, the fields are pre-filled from the server
+        // For admins, set up the change event listener
+        if (isAdmin && employeeSelect) {
+            employeeSelect.addEventListener('change', updateEmployeeDetails);
+            
             // Trigger change event if there's a selected value (for form validation errors)
             if (employeeSelect.value) {
-                employeeSelect.dispatchEvent(new Event('change'));
+                updateEmployeeDetails();
             }
         }
 

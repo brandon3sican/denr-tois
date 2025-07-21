@@ -19,15 +19,44 @@ class TravelOrderController extends Controller
 
     public function create()
     {
-        $employees = Employee::all();
-        $statuses = TravelOrderStatus::all();
+        $user = auth()->user();
+        $employees = $user->is_admin ? Employee::all() : collect();
         $userTypes = TravelOrderUserType::all();
         
-        return view('travel-orders.create', compact('employees', 'statuses', 'userTypes'));
+        // Get the 'For Recommendation' status
+        $forRecommendationStatus = TravelOrderStatus::where('name', 'For Recommendation')->first();
+        if (!$forRecommendationStatus) {
+            // Fallback to the first status if 'For Recommendation' doesn't exist
+            $forRecommendationStatus = TravelOrderStatus::first();
+        }
+        
+        // Get the authenticated employee's data if not admin
+        $employee = null;
+        if (!$user->is_admin && $user->employee) {
+            $employee = Employee::with(['position' => function($query) {
+                $query->select('id', 'name', 'salary');
+            }, 'divSecUnit'])->find($user->employee->id);
+        }
+        
+        return view('travel-orders.create', [
+            'employees' => $employees,
+            'status_id' => $forRecommendationStatus ? $forRecommendationStatus->id : null,
+            'status_name' => $forRecommendationStatus ? $forRecommendationStatus->name : 'For Recommendation',
+            'userTypes' => $userTypes,
+            'isAdmin' => $user->is_admin,
+            'employee' => $employee
+        ]);
     }
 
     public function store(Request $request)
     {
+        // Get the 'For Recommendation' status
+        $forRecommendationStatus = TravelOrderStatus::where('name', 'For Recommendation')->first();
+        if (!$forRecommendationStatus) {
+            // Fallback to the first status if 'For Recommendation' doesn't exist
+            $forRecommendationStatus = TravelOrderStatus::first();
+        }
+
         $validated = $request->validate([
             'region' => 'required|string|max:255',
             'address' => 'required|string',
@@ -44,7 +73,7 @@ class TravelOrderController extends Controller
             'arrival_date' => 'required|date|after_or_equal:departure_date',
             'purpose_of_travel' => 'required|string',
             'per_diem_expenses' => 'required|numeric|min:0',
-            'assistant_or_laborers_allowed' => 'boolean',
+            'assistant_or_laborers_count' => 'required|integer|min:0',
             'appropriations' => 'nullable|string',
             'remarks' => 'nullable|string',
             'status_id' => 'required|exists:travel_order_statuses,id',
@@ -70,7 +99,6 @@ class TravelOrderController extends Controller
 
     public function show(TravelOrder $travelOrder)
     {
-        $travelOrder->load(['employee', 'status', 'signatories.employee', 'signatories.userType']);
         return view('travel-orders.show', compact('travelOrder'));
     }
 
@@ -79,7 +107,6 @@ class TravelOrderController extends Controller
         $employees = Employee::all();
         $statuses = TravelOrderStatus::all();
         $userTypes = TravelOrderUserType::all();
-        $travelOrder->load('signatories');
         
         return view('travel-orders.edit', compact('travelOrder', 'employees', 'statuses', 'userTypes'));
     }
@@ -102,7 +129,7 @@ class TravelOrderController extends Controller
             'arrival_date' => 'required|date|after_or_equal:departure_date',
             'purpose_of_travel' => 'required|string',
             'per_diem_expenses' => 'required|numeric|min:0',
-            'assistant_or_laborers_allowed' => 'boolean',
+            'assistant_or_laborers_count' => 'required|integer|min:0',
             'appropriations' => 'nullable|string',
             'remarks' => 'nullable|string',
             'status_id' => 'required|exists:travel_order_statuses,id',
