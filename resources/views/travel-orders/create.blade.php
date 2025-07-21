@@ -94,21 +94,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-6">
-                    <label for="official_station" class="form-label">Official Station *</label>
-                    <select class="form-select @error('official_station') is-invalid @enderror" 
-                            id="official_station" name="official_station" required>
-                        <option value="" disabled selected>Select a station</option>
-                        <!-- Will be populated by JavaScript -->
-                    </select>
-                    @error('official_station')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <label for="region_id" class="form-label">Region *</label>
                     <select class="form-select @error('region_id') is-invalid @enderror" id="region_id" name="region_id" required>
                         <option value="" disabled selected>Select Region</option>
@@ -126,7 +112,21 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
+                    <label for="official_station" class="form-label">Official Station *</label>
+                    <select class="form-select @error('official_station') is-invalid @enderror" 
+                            id="official_station" name="official_station" required>
+                        <option value="" disabled selected>Select a station</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                    @error('official_station')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
                     <label for="address" class="form-label">Complete Address *</label>
                     <input type="text" class="form-control @error('address') is-invalid @enderror" 
                            id="address" name="address" value="{{ old('address') }}" required>
@@ -134,18 +134,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <label for="contact_number" class="form-label">Contact Number</label>
-                    <input type="text" class="form-control" id="contact_number" name="contact_number" readonly>
-                </div>
-                <div class="col-md-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" readonly>
-                </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="destination" class="form-label">Destination *</label>
                     <input type="text" class="form-control @error('destination') is-invalid @enderror" 
                            id="destination" name="destination" value="{{ old('destination') }}" required>
@@ -153,7 +142,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label for="departure_date" class="form-label">Departure Date *</label>
                     <input type="date" class="form-control @error('departure_date') is-invalid @enderror" 
                            id="departure_date" name="departure_date" value="{{ old('departure_date') }}" required>
@@ -161,7 +150,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label for="arrival_date" class="form-label">Arrival Date *</label>
                     <input type="date" class="form-control @error('arrival_date') is-invalid @enderror" 
                            id="arrival_date" name="arrival_date" value="{{ old('arrival_date') }}" required>

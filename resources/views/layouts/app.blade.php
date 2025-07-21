@@ -15,21 +15,13 @@
     @auth
         <div class="sidebar">
             <div class="logo">
-                <span><img src="{{ asset('assets/img/denr-logo.png') }}" alt="DENR Logo" height="50" width="50"> TOS</span>
+                <a href="{{ route('dashboard') }}"><img src="{{ asset('assets/img/denr-logo.png') }}" alt="DENR Logo" height="50" width="50"></a> TOS
             </div>
             <nav>
 
                 <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="fas fa-home"></i> Dashboard
                 </a>
-                
-                @auth
-                    @if(auth()->user()->is_admin)
-                    <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
-                        <i class="fas fa-user"></i> Employees
-                    </a>
-                    @endif
-                @endauth
 
                 <a href="{{ route('travel-orders.index') }}" class="{{ request()->routeIs('travel-orders.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i> Travel Orders
@@ -38,7 +30,9 @@
                 @auth
                     @if(auth()->user()->is_admin)
 
-                    <hr>
+                    <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
+                        <i class="fas fa-user"></i> Employees
+                    </a>
                     
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">User Management</div>
