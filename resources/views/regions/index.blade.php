@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
     <div class="row justify-content-between align-items-center mb-4">
         <div class="col-auto">
             <h1>Regions</h1>
@@ -113,7 +112,6 @@
             </nav>
         </div>
     </div>
-</div>
 @endsection
 
 @push('styles')
