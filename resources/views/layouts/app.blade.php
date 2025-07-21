@@ -56,6 +56,19 @@
                             <i class="fas fa-building"></i> Official Stations
                         </a>
                     </div>
+
+                    <div class="sidebar-section">
+                        <div class="sidebar-section-title">Employee Management</div>
+                        <a href="{{ route('div-sec-units.index') }}" class="{{ request()->routeIs('div-sec-units.*') ? 'active' : '' }}">
+                            <i class="fas fa-sitemap"></i> Div/Sec/Units
+                        </a>
+                        <a href="{{ route('positions.index') }}" class="{{ request()->routeIs('positions.*') ? 'active' : '' }}">
+                            <i class="fas fa-id-card"></i> Positions
+                        </a>
+                        <a href="{{ route('employment-statuses.index') }}" class="{{ request()->routeIs('employment-statuses.*') ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-check"></i> Employment Statuses
+                        </a>
+                    </div>
                     
                     @endif
                 @endauth

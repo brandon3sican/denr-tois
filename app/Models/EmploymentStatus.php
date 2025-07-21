@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EmploymentStatus extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'description', 'is_active'];
+    
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function employees(): HasMany
     {

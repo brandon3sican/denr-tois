@@ -12,6 +12,9 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\API\OfficialStationController as APIOfficialStationController;
+use App\Http\Controllers\DivSecUnitController;
+use App\Http\Controllers\PositionController;
+use App\Http\Controllers\EmploymentStatusController;
 
 // Dashboard Route
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
@@ -66,6 +69,15 @@ Route::middleware(['auth'])->group(function () {
     
     // Official Station Management Routes
     Route::resource('official-stations', OfficialStationController::class)->except(['show']);
+    
+    // Division/Section/Unit Management Routes
+    Route::resource('div-sec-units', DivSecUnitController::class);
+    
+    // Position Management Routes
+    Route::resource('positions', PositionController::class);
+    
+    // Employment Status Management Routes
+    Route::resource('employment-statuses', EmploymentStatusController::class);
     
     // Home Route for authenticated users
     Route::get('/home', function () {

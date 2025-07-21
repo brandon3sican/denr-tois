@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ReferenceDataSeeder::class,
             RegionAndStationSeeder::class,
-            SampleDataSeeder::class,
+            SampleDataSeeder::class,    // Keep this last as it might depend on other seeders
         ]);
     }
 }
