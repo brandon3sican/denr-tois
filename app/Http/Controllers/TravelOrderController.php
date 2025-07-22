@@ -13,14 +13,31 @@ class TravelOrderController extends Controller
 {
     public function index()
     {
-        $travelOrders = TravelOrder::with(['employee', 'status'])->latest()->paginate(10);
+        $user = auth()->user();
+        
+        // If user is admin, show all travel orders
+        // Otherwise, only show travel orders for the logged-in employee
+        $query = TravelOrder::with(['employee', 'status']);
+        
+        if (!$user->is_admin) {
+            $query->where('employee_id', $user->employee_id);
+        }
+        
+        $travelOrders = $query->latest()->paginate(10);
+        
         return view('travel-orders.index', compact('travelOrders'));
     }
 
     public function create()
     {
         $user = auth()->user();
+        
+        // Only admin can select employee, others will use their own employee record
         $employees = $user->is_admin ? Employee::all() : collect();
+        
+        // Get the current user's employee record if not admin
+        $employee = !$user->is_admin ? Employee::find($user->employee_id) : null;
+        
         $userTypes = TravelOrderUserType::all();
         $regions = \App\Models\Region::where('is_active', true)->get();
         
@@ -30,22 +47,14 @@ class TravelOrderController extends Controller
             ['description' => 'Travel order is pending recommendation']
         );
         
-        // Get the authenticated employee's data if not admin
-        $employee = null;
-        if (!$user->is_admin && $user->employee) {
-            $employee = Employee::with(['position' => function($query) {
-                $query->select('id', 'name', 'salary');
-            }, 'divSecUnit'])->find($user->employee->id);
-        }
-        
         return view('travel-orders.create', [
             'employees' => $employees,
-            'status_id' => $forRecommendationStatus->id,
-            'status_name' => $forRecommendationStatus->name,
-            'userTypes' => $userTypes,
-            'isAdmin' => $user->is_admin,
             'employee' => $employee,
-            'regions' => $regions
+            'isAdmin' => $user->is_admin,
+            'userTypes' => $userTypes,
+            'regions' => $regions,
+            'forRecommendationStatus' => $forRecommendationStatus,
+            'status_id' => $forRecommendationStatus->id
         ]);
     }
 
@@ -55,14 +64,6 @@ class TravelOrderController extends Controller
         \Log::info('Travel Order Creation Request:', $request->all());
         
         // Get or create the 'For Recommendation' status
-        $forRecommendationStatus = TravelOrderStatus::firstOrCreate(
-            ['name' => 'For Recommendation'],
-            ['description' => 'Travel order is pending recommendation']
-        );
-        
-        // Always use the 'For Recommendation' status for new travel orders
-        $request->merge(['status_id' => $forRecommendationStatus->id]);
-
         $validated = $request->validate([
             'region_id' => 'required|exists:regions,id',
             'address' => 'required|string',
@@ -90,10 +91,26 @@ class TravelOrderController extends Controller
             'signatories.*.user_type_id' => 'required|exists:travel_order_user_types,id',
         ]);
 
-        // Get the region name
-        $region = \App\Models\Region::find($validated['region_id']);
-        $validated['region'] = $region ? $region->name : '';
-        unset($validated['region_id']);
+        // For non-admin users, ensure they can only create travel orders for themselves
+        if (!$user->is_admin) {
+            $validated['employee_id'] = $user->employee_id;
+            
+            // Get the employee data to ensure we have the latest information
+            $employee = Employee::findOrFail($user->employee_id);
+            $validated['full_name'] = $employee->full_name;
+            $validated['position'] = $employee->position;
+            $validated['salary'] = $employee->salary;
+            $validated['div_sec_unit'] = $employee->div_sec_unit;
+        }
+
+        // Get or create the 'For Recommendation' status
+        $forRecommendationStatus = TravelOrderStatus::firstOrCreate(
+            ['name' => 'For Recommendation'],
+            ['description' => 'Travel order is pending recommendation']
+        );
+        
+        // Always use the 'For Recommendation' status for new travel orders
+        $request->merge(['status_id' => $forRecommendationStatus->id]);
 
         // Log the validated data before creation
         \Log::info('Validated data before creation:', $validated);
@@ -143,13 +160,26 @@ class TravelOrderController extends Controller
 
     public function show(TravelOrder $travelOrder)
     {
-        $travelOrder->load('region');
+        $user = auth()->user();
+        
+        // If user is not admin and doesn't own this travel order, deny access
+        if (!$user->is_admin && $travelOrder->employee_id !== $user->employee_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         return view('travel-orders.show', compact('travelOrder'));
     }
 
     public function edit(TravelOrder $travelOrder)
     {
-        $employees = Employee::all();
+        $user = auth()->user();
+        
+        // If user is not admin and doesn't own this travel order, deny access
+        if (!$user->is_admin && $travelOrder->employee_id !== $user->employee_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $employees = $user->is_admin ? Employee::all() : [];
         $statuses = TravelOrderStatus::all();
         $userTypes = TravelOrderUserType::all();
         $regions = \App\Models\Region::where('is_active', true)->get();
@@ -159,24 +189,21 @@ class TravelOrderController extends Controller
 
     public function update(Request $request, TravelOrder $travelOrder)
     {
+        $user = auth()->user();
+        
+        // If user is not admin and doesn't own this travel order, deny access
+        if (!$user->is_admin && $travelOrder->employee_id !== $user->employee_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $validated = $request->validate([
-            'region_id' => 'required|exists:regions,id',
-            'address' => 'required|string',
-            'contact_number' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:100',
-            'date' => 'required|date',
-            'travel_order_no' => 'required|string|unique:travel_orders,travel_order_no,' . $travelOrder->id,
             'employee_id' => 'required|exists:employees,id',
-            'full_name' => 'required|string|max:255',
-            'salary' => 'required|numeric|min:0',
-            'position' => 'required|string|max:255',
-            'div_sec_unit' => 'required|string|max:255',
+            'travel_order_no' => 'required|string|max:255',
+            'date' => 'required|date',
             'departure_date' => 'required|date',
-            'official_station' => 'required|string|max:255',
-            'destination' => 'required|string|max:255',
             'arrival_date' => 'required|date|after_or_equal:departure_date',
+            'destination' => 'required|string|max:255',
             'purpose_of_travel' => 'required|string',
-            'per_diem_expenses' => 'required|numeric|min:0',
             'assistant_or_laborers_count' => 'required|integer|min:0',
             'appropriations' => 'nullable|string',
             'remarks' => 'nullable|string',
@@ -204,6 +231,13 @@ class TravelOrderController extends Controller
 
     public function destroy(TravelOrder $travelOrder)
     {
+        $user = auth()->user();
+        
+        // If user is not admin and doesn't own this travel order, deny access
+        if (!$user->is_admin && $travelOrder->employee_id !== $user->employee_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
         $travelOrder->delete();
         
         return redirect()->route('travel-orders.index')
@@ -219,9 +253,18 @@ class TravelOrderController extends Controller
     public function cancel(TravelOrder $travelOrder)
     {
         try {
+            $user = auth()->user();
+            
+            // If user is not admin and doesn't own this travel order, deny access
+            if (!$user->is_admin && $travelOrder->employee_id !== $user->employee_id) {
+                abort(403, 'Unauthorized action.');
+            }
+            
             // Debug: Log the incoming travel order data
             \Log::info('Cancel request received for travel order:', [
                 'id' => $travelOrder->id,
+                'user_id' => $user->id,
+                'is_admin' => $user->is_admin,
                 'current_status' => $travelOrder->status,
                 'status_type' => gettype($travelOrder->status),
                 'status_relation_loaded' => $travelOrder->relationLoaded('status'),

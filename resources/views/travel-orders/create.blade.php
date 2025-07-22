@@ -66,17 +66,17 @@
                             <label for="employee_id" class="form-label">Employee *</label>
                             <select class="form-select @error('employee_id') is-invalid @enderror" id="employee_id" name="employee_id" required>
                                 <option value="" disabled selected>Select Employee</option>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}" 
-                                            data-position="{{ $employee->position->name ?? '' }}" 
-                                            data-division="{{ $employee->divSecUnit->name ?? '' }}" 
-                                            data-salary="{{ $employee->salary ?? 0 }}"
-                                            data-fullname="{{ $employee->full_name }}"
-                                            data-official-station="{{ $employee->official_station ?? 'Not specified' }}"
-                                            data-contact-number="{{ $employee->contact_number ?? '' }}"
-                                            data-email="{{ $employee->email ?? '' }}"
-                                            {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                        {{ $employee->full_name }} - {{ $employee->position->name ?? '' }}
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->id }}" 
+                                            data-position="{{ $emp->position->name ?? '' }}" 
+                                            data-division="{{ $emp->divSecUnit->name ?? '' }}" 
+                                            data-salary="{{ $emp->salary ?? 0 }}"
+                                            data-fullname="{{ $emp->full_name }}"
+                                            data-official-station="{{ $emp->official_station ?? 'Not specified' }}"
+                                            data-contact-number="{{ $emp->contact_number ?? '' }}"
+                                            data-email="{{ $emp->email ?? '' }}"
+                                            {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
+                                        {{ $emp->full_name }} - {{ $emp->position->name ?? '' }}
                                     </option>
                                 @endforeach
                             </select>
@@ -84,13 +84,15 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                    @else
+                        <input type="hidden" name="employee_id" value="{{ $employee->id ?? '' }}">
                     @endif
 
                     <div class="row">
                         <div class="col-md-12">
                             <label for="full_name" class="form-label">Full Name *</label>
                             <input type="text" class="form-control @error('full_name') is-invalid @enderror" 
-                                   id="full_name" name="full_name" value="{{ $isAdmin ? old('full_name') : ($employee->full_name ?? '') }}" required readonly>
+                                   id="full_name" name="full_name" value="{{ $isAdmin ? old('full_name') : ($employee->full_name ?? '') }}" required {{ !$isAdmin ? 'readonly' : '' }}>
                             @error('full_name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
