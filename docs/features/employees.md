@@ -5,9 +5,12 @@ This document details the employee management system in the DENR TOIS applicatio
 
 ## Features
 - **Employee Directory**
-  - Comprehensive employee listing with search and filters
-  - Detailed employee profiles
-  - Sortable columns and pagination
+  - Comprehensive employee listing with advanced search
+  - Search by name (first, middle, last) or employee ID
+  - Detailed employee profiles with complete information
+  - Sortable columns with default sort by creation date (newest first)
+  - Paginated results (10 items per page)
+  - Responsive design for all screen sizes
 
 - **Organizational Structure**
   - Divisions/Sections/Units management
@@ -42,10 +45,27 @@ This document details the employee management system in the DENR TOIS applicatio
 ## User Interface
 
 ### Employee Directory
-- Searchable and filterable list
-- Grid/List view options
-- Quick contact information
-- Department/Division filtering
+- **Search & Filtering**
+  - Real-time search as you type
+  - Search across multiple fields (name, employee ID)
+  - Clear search button for quick reset
+  - Maintains sort order during search
+  
+- **Pagination**
+  - 10 items per page
+  - Page navigation controls
+  - Current page indicator
+  - Total record count
+  
+- **Sorting**
+  - Click on column headers to sort
+  - Visual indicators for sort direction
+  - Multiple sortable fields
+  
+- **Responsive Design**
+  - Adapts to different screen sizes
+  - Mobile-friendly interface
+  - Touch-friendly controls
 
 ### Employee Profile
 - Personal information
