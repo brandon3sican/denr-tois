@@ -9,8 +9,19 @@
         <p class="text-muted">Please fill in all required fields marked with an asterisk (*)</p>
     </div>
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    
     <form action="{{ route('travel-orders.store') }}" method="POST" id="travelOrderForm">
         @csrf
+        <input type="hidden" name="status_id" value="{{ $status_id ?? '' }}">
             
         <!-- Travel Order Header -->
         <div class="card mb-4">
@@ -117,15 +128,17 @@
                 </div>
             </div>
 
-            <!-- Travel Request Details Section -->
-            <div class="card mb-4" id="requestDetailsCard">
-                <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#requestDetailsCollapse" role="button" aria-expanded="true" aria-controls="requestDetailsCollapse">
-                    <h5 class="mb-0">3. Travel Request Details</h5>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="collapse show" id="requestDetailsCollapse">
-                    <div class="card-body">
-                        <div class="row mb-3">
+        </div>
+
+        <!-- Travel Request Details Section -->
+        <div class="card mb-4" id="requestDetailsCard">
+            <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#requestDetailsCollapse" role="button" aria-expanded="true" aria-controls="requestDetailsCollapse">
+                <h5 class="mb-0">3. Travel Request Details</h5>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="collapse show" id="requestDetailsCollapse">
+                <div class="card-body">
+                    <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="region_id" class="form-label">Region *</label>
                             <select class="form-select @error('region_id') is-invalid @enderror" id="region_id" name="region_id" required>
@@ -139,120 +152,119 @@
                                 @error('region_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                            </div>
-                            <div class="col-md-4">
-                                <label for="official_station" class="form-label">Official Station *</label>
-                                <select class="form-select @error('official_station') is-invalid @enderror" 
-                                        id="official_station" name="official_station" required>
-                                    <option value="" disabled selected>Select a station</option>
-                                    <!-- Will be populated by JavaScript -->
-                                </select>
-                                @error('official_station')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-4">
-                                <label for="address" class="form-label">Complete Address *</label>
-                                <input type="text" class="form-control @error('address') is-invalid @enderror" 
-                                       id="address" name="address" value="{{ old('address') }}" required>
-                                @error('address')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
                         </div>
+                        <div class="col-md-4">
+                            <label for="official_station" class="form-label">Official Station *</label>
+                            <select class="form-select @error('official_station') is-invalid @enderror" 
+                                    id="official_station" name="official_station" required>
+                                <option value="" disabled selected>Select a station</option>
+                                <!-- Will be populated by JavaScript -->
+                            </select>
+                            @error('official_station')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="address" class="form-label">Complete Address *</label>
+                            <input type="text" class="form-control @error('address') is-invalid @enderror" 
+                                   id="address" name="address" value="{{ old('address') }}" required>
+                            @error('address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label for="purpose_of_travel" class="form-label">Purpose of Travel *</label>
-                                <textarea class="form-control @error('purpose_of_travel') is-invalid @enderror" 
-                                          id="purpose_of_travel" name="purpose_of_travel" rows="3" required>{{ old('purpose_of_travel') }}</textarea>
-                                @error('purpose_of_travel')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="purpose_of_travel" class="form-label">Purpose of Travel *</label>
+                            <textarea class="form-control @error('purpose_of_travel') is-invalid @enderror" 
+                                      id="purpose_of_travel" name="purpose_of_travel" rows="3" required>{{ old('purpose_of_travel') }}</textarea>
+                            @error('purpose_of_travel')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Travel Itinerary Section -->
-            <div class="card mb-4" id="travelItineraryCard">
-                <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#travelItineraryCollapse" role="button" aria-expanded="true" aria-controls="travelItineraryCollapse">
-                    <h5 class="mb-0">4. Travel Itinerary</h5>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="collapse show" id="travelItineraryCollapse">
-                    <div class="card-body">
+        <!-- Travel Itinerary Section -->
+        <div class="card mb-4" id="travelItineraryCard">
+            <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#travelItineraryCollapse" role="button" aria-expanded="true" aria-controls="travelItineraryCollapse">
+                <h5 class="mb-0">4. Travel Itinerary</h5>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="collapse show" id="travelItineraryCollapse">
+                <div class="card-body">
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="destination" class="form-label">Destination *</label>
-                                <input type="text" class="form-control @error('destination') is-invalid @enderror" 
-                                       id="destination" name="destination" value="{{ old('destination') }}" required>
-                                @error('destination')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="destination" class="form-label">Destination *</label>
+                            <input type="text" class="form-control @error('destination') is-invalid @enderror" 
+                                   id="destination" name="destination" value="{{ old('destination') }}" required>
+                            @error('destination')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                            <div class="col-md-3">
-                                <label for="departure_date" class="form-label">Departure Date *</label>
-                                <input type="date" class="form-control @error('departure_date') is-invalid @enderror" 
-                                       id="departure_date" name="departure_date" value="{{ old('departure_date') }}" required>
-                                @error('departure_date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3">
-                                <label for="arrival_date" class="form-label">Arrival Date *</label>
-                                <input type="date" class="form-control @error('arrival_date') is-invalid @enderror" 
-                                       id="arrival_date" name="arrival_date" value="{{ old('arrival_date') }}" required>
-                                @error('arrival_date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="col-md-3">
+                            <label for="departure_date" class="form-label">Departure Date *</label>
+                            <input type="date" class="form-control @error('departure_date') is-invalid @enderror" 
+                                   id="departure_date" name="departure_date" value="{{ old('departure_date') }}" required>
+                            @error('departure_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label for="arrival_date" class="form-label">Arrival Date *</label>
+                            <input type="date" class="form-control @error('arrival_date') is-invalid @enderror" 
+                                   id="arrival_date" name="arrival_date" value="{{ old('arrival_date') }}" required>
+                            @error('arrival_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Additional Information Section -->
-            <div class="card mb-4" id="additionalInfoCard">
-                <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#additionalInfoCollapse" role="button" aria-expanded="true" aria-controls="additionalInfoCollapse">
-                    <h5 class="mb-0">5. Additional Information</h5>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="collapse show" id="additionalInfoCollapse">
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="per_diem_expenses" class="form-label">Per Diem Expenses (₱) *</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">₱</span>
-                                    <input type="number" step="0.01" class="form-control @error('per_diem_expenses') is-invalid @enderror" 
-                                           id="per_diem_expenses" name="per_diem_expenses" value="{{ old('per_diem_expenses', 0) }}" required>
-                                </div>
-                                @error('per_diem_expenses')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+        <!-- Additional Information Section -->
+        <div class="card mb-4" id="additionalInfoCard">
+            <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#additionalInfoCollapse" role="button" aria-expanded="true" aria-controls="additionalInfoCollapse">
+                <h5 class="mb-0">5. Additional Information</h5>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="collapse show" id="additionalInfoCollapse">
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="per_diem_expenses" class="form-label">Per Diem Expenses (₱) *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₱</span>
+                                <input type="number" step="0.01" class="form-control @error('per_diem_expenses') is-invalid @enderror" 
+                                       id="per_diem_expenses" name="per_diem_expenses" value="{{ old('per_diem_expenses', 0) }}" required>
                             </div>
-                            <div class="col-md-4">
-                                <label for="assistant_or_laborers_allowed" class="form-label">Assistant or Laborers Allowed *</label>
-                                <div class="input-group">
-                                    <input type="number" step="1" class="form-control @error('assistant_or_laborers_allowed') is-invalid @enderror" 
-                                           id="assistant_or_laborers_allowed" name="assistant_or_laborers_allowed" value="{{ old('assistant_or_laborers_allowed', 0) }}" required>
-                                </div>
-                                @error('assistant_or_laborers_allowed')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            @error('per_diem_expenses')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="assistant_or_laborers_allowed" class="form-label">Assistant or Laborers Allowed *</label>
+                            <div class="input-group">
+                                <input type="number" step="1" class="form-control @error('assistant_or_laborers_allowed') is-invalid @enderror" 
+                                       id="assistant_or_laborers_allowed" name="assistant_or_laborers_allowed" value="{{ old('assistant_or_laborers_allowed', 0) }}" required>
                             </div>
-                            <div class="col-md-4">
-                                <label for="appropriations" class="form-label">Appropriations *</label>
-                                <input type="text" class="form-control @error('appropriations') is-invalid @enderror" 
-                                       id="appropriations" name="appropriations" value="{{ old('appropriations') }}" required>
-                                @error('appropriations')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            @error('assistant_or_laborers_allowed')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-4">
+                            <label for="appropriations" class="form-label">Appropriations *</label>
+                            <input type="text" class="form-control @error('appropriations') is-invalid @enderror" 
+                                   id="appropriations" name="appropriations" value="{{ old('appropriations') }}" required>
+                            @error('appropriations')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
@@ -266,12 +278,13 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Signatories Section -->
-            <div class="card mb-4" id="signatoriesCard">
-                <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#signatoriesCollapse" role="button" aria-expanded="true" aria-controls="signatoriesCollapse">
-                    <h5 class="mb-0">6. Signatories</h5>
-                    <i class="fas fa-chevron-down"></i>
+        <!-- Signatories Section -->
+        <div class="card mb-4" id="signatoriesCard">
+            <div class="card-header text-black d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#signatoriesCollapse" role="button" aria-expanded="true" aria-controls="signatoriesCollapse">
+                <h5 class="mb-0">6. Signatories</h5>
+                <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="collapse show" id="signatoriesCollapse">
                     <div class="card-body">
@@ -325,12 +338,14 @@
                 </div>
             </div>
 
-            <!-- Form Submission -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('travel-orders.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-1"></i> Back to List
+        </div>
+
+        <!-- Form Submission -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ route('travel-orders.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to List
                         </a>
                         <div>
                             <button type="button" id="saveDraftBtn" class="btn btn-outline-secondary me-2">

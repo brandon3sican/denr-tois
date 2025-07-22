@@ -60,6 +60,8 @@ Route::middleware(['auth'])->group(function () {
     
     // Travel Order Routes
     Route::resource('travel-orders', TravelOrderController::class);
+    Route::patch('travel-orders/{travelOrder}/cancel', [TravelOrderController::class, 'cancel'])
+        ->name('travel-orders.cancel');
     
     // User Management Routes
     Route::resource('users', UserController::class);

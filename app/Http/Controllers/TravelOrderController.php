@@ -24,12 +24,11 @@ class TravelOrderController extends Controller
         $userTypes = TravelOrderUserType::all();
         $regions = \App\Models\Region::where('is_active', true)->get();
         
-        // Get the 'For Recommendation' status
-        $forRecommendationStatus = TravelOrderStatus::where('name', 'For Recommendation')->first();
-        if (!$forRecommendationStatus) {
-            // Fallback to the first status if 'For Recommendation' doesn't exist
-            $forRecommendationStatus = TravelOrderStatus::first();
-        }
+        // Get or create the 'For Recommendation' status
+        $forRecommendationStatus = TravelOrderStatus::firstOrCreate(
+            ['name' => 'For Recommendation'],
+            ['description' => 'Travel order is pending recommendation']
+        );
         
         // Get the authenticated employee's data if not admin
         $employee = null;
@@ -41,8 +40,8 @@ class TravelOrderController extends Controller
         
         return view('travel-orders.create', [
             'employees' => $employees,
-            'status_id' => $forRecommendationStatus ? $forRecommendationStatus->id : null,
-            'status_name' => $forRecommendationStatus ? $forRecommendationStatus->name : 'For Recommendation',
+            'status_id' => $forRecommendationStatus->id,
+            'status_name' => $forRecommendationStatus->name,
             'userTypes' => $userTypes,
             'isAdmin' => $user->is_admin,
             'employee' => $employee,
@@ -52,12 +51,17 @@ class TravelOrderController extends Controller
 
     public function store(Request $request)
     {
-        // Get the 'For Recommendation' status
-        $forRecommendationStatus = TravelOrderStatus::where('name', 'For Recommendation')->first();
-        if (!$forRecommendationStatus) {
-            // Fallback to the first status if 'For Recommendation' doesn't exist
-            $forRecommendationStatus = TravelOrderStatus::first();
-        }
+        // Log the incoming request data
+        \Log::info('Travel Order Creation Request:', $request->all());
+        
+        // Get or create the 'For Recommendation' status
+        $forRecommendationStatus = TravelOrderStatus::firstOrCreate(
+            ['name' => 'For Recommendation'],
+            ['description' => 'Travel order is pending recommendation']
+        );
+        
+        // Always use the 'For Recommendation' status for new travel orders
+        $request->merge(['status_id' => $forRecommendationStatus->id]);
 
         $validated = $request->validate([
             'region_id' => 'required|exists:regions,id',
@@ -77,7 +81,7 @@ class TravelOrderController extends Controller
             'arrival_date' => 'required|date|after_or_equal:departure_date',
             'purpose_of_travel' => 'required|string',
             'per_diem_expenses' => 'required|numeric|min:0',
-            'assistant_or_laborers_count' => 'required|integer|min:0',
+            'assistant_or_laborers_allowed' => 'required|integer|min:0',
             'appropriations' => 'nullable|string',
             'remarks' => 'nullable|string',
             'status_id' => 'required|exists:travel_order_statuses,id',
@@ -86,7 +90,43 @@ class TravelOrderController extends Controller
             'signatories.*.user_type_id' => 'required|exists:travel_order_user_types,id',
         ]);
 
-        $travelOrder = TravelOrder::create($validated);
+        // Get the region name
+        $region = \App\Models\Region::find($validated['region_id']);
+        $validated['region'] = $region ? $region->name : '';
+        unset($validated['region_id']);
+
+        // Log the validated data before creation
+        \Log::info('Validated data before creation:', $validated);
+
+        try {
+            // Create the travel order
+            $travelOrder = TravelOrder::create($validated);
+            \Log::info('Travel Order Created:', $travelOrder->toArray());
+            
+            // Add signatories if any
+            if (isset($validated['signatories']) && is_array($validated['signatories'])) {
+                \Log::info('Adding signatories:', $validated['signatories']);
+                foreach ($validated['signatories'] as $signatory) {
+                    $travelOrder->signatories()->create([
+                        'employee_id' => $signatory['employee_id'],
+                        'user_type_id' => $signatory['user_type_id'],
+                        'is_signed' => false,
+                    ]);
+                }
+                \Log::info('Signatories added successfully');
+            }
+            
+            return redirect()->route('travel-orders.index')
+                ->with('success', 'Travel order created successfully.');
+                
+        } catch (\Exception $e) {
+            \Log::error('Error creating travel order: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()->withInput()
+                ->with('error', 'Error creating travel order: ' . $e->getMessage());
+        }
 
         // Add signatories
         foreach ($request->signatories as $signatory) {
@@ -165,8 +205,87 @@ class TravelOrderController extends Controller
     public function destroy(TravelOrder $travelOrder)
     {
         $travelOrder->delete();
-
+        
         return redirect()->route('travel-orders.index')
-            ->with('success', 'Travel Order deleted successfully');
+            ->with('success', 'Travel order deleted successfully');
+    }
+    
+    /**
+     * Cancel the specified travel order.
+     *
+     * @param  \App\Models\TravelOrder  $travelOrder
+     * @return \Illuminate\Http\Response
+     */
+    public function cancel(TravelOrder $travelOrder)
+    {
+        try {
+            // Debug: Log the incoming travel order data
+            \Log::info('Cancel request received for travel order:', [
+                'id' => $travelOrder->id,
+                'current_status' => $travelOrder->status,
+                'status_type' => gettype($travelOrder->status),
+                'status_relation_loaded' => $travelOrder->relationLoaded('status'),
+            ]);
+            
+            // Get the current status name for logging
+            $currentStatus = is_string($travelOrder->status) 
+                ? $travelOrder->status 
+                : ($travelOrder->status->name ?? 'unknown');
+            
+            \Log::debug("Resolved current status: {$currentStatus}");
+            
+            // Ensure the travel order is in a cancellable state
+            if (in_array(strtolower($currentStatus), ['cancelled', 'completed'])) {
+                $message = "Cannot cancel a travel order with status: {$currentStatus}";
+                \Log::warning($message);
+                return redirect()->back()->with('error', $message);
+            }
+            
+            // Get or create the 'Cancelled' status
+            $cancelledStatus = TravelOrderStatus::firstOrCreate(
+                ['name' => 'cancelled'],
+                ['description' => 'Travel order has been cancelled']
+            );
+            
+            \Log::debug("Cancelled status ID: {$cancelledStatus->id}");
+            
+            // Update the travel order status
+            $updateData = [
+                'status_id' => $cancelledStatus->id,
+                'status' => 'cancelled'
+            ];
+            
+            $updated = $travelOrder->update($updateData);
+            
+            // Refresh the model to get updated data
+            $travelOrder->refresh();
+            
+            // Log the status change with before/after
+            \Log::info("Travel Order #{$travelOrder->id} status update result: " . ($updated ? 'success' : 'failed'), [
+                'before' => [
+                    'status' => $currentStatus,
+                ],
+                'after' => [
+                    'status' => $travelOrder->status,
+                    'status_id' => $travelOrder->status_id,
+                ],
+                'update_data' => $updateData
+            ]);
+            
+            if (!$updated) {
+                throw new \Exception("Failed to update travel order status");
+            }
+            
+            return redirect()->back()
+                ->with('success', 'Travel order has been cancelled successfully.');
+                
+        } catch (\Exception $e) {
+            \Log::error("Error cancelling travel order #{$travelOrder->id}", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()
+                ->with('error', 'Failed to cancel travel order. Please try again.');
+        }
     }
 }

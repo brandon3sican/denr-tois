@@ -35,15 +35,21 @@
                             <td>{{ \Carbon\Carbon::parse($travelOrder->arrival_date)->format('M d, Y') }}</td>
                             <td>
                                 @php
+                                    // Get the status name, handling both string and object status
+                                    $statusName = is_string($travelOrder->status) 
+                                        ? $travelOrder->status 
+                                        : ($travelOrder->status->name ?? 'Unknown');
+                                        
                                     $statusClass = [
                                         'pending' => 'warning',
                                         'approved' => 'success',
                                         'rejected' => 'danger',
                                         'completed' => 'info',
-                                    ][strtolower($travelOrder->status->name)] ?? 'secondary';
+                                        'for recommendation' => 'primary',
+                                    ][strtolower($statusName)] ?? 'secondary';
                                 @endphp
                                 <span class="badge bg-{{ $statusClass }}">
-                                    {{ $travelOrder->status->name }}
+                                    {{ ucfirst($statusName) }}
                                 </span>
                             </td>
                             <td>
@@ -59,16 +65,25 @@
                                         </a>
                                     </div>
                                     
-                                    <!-- Edit Button -->
+                                    <!-- Cancel Button (Only show if status is not already cancelled or completed) -->
+                                    @if(!in_array(strtolower($statusName), ['cancelled', 'completed']))
                                     <div class="action-btn">
-                                        <a href="{{ route('travel-orders.edit', $travelOrder) }}" 
-                                           class="btn btn-outline-warning btn-action" 
-                                           data-bs-toggle="tooltip" 
-                                           data-bs-placement="top" 
-                                           title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                        <form action="{{ route('travel-orders.cancel', $travelOrder) }}" 
+                                              method="POST" 
+                                              class="d-inline" 
+                                              onsubmit="return confirm('Are you sure you want to cancel this travel order?');">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" 
+                                                    class="btn btn-outline-warning btn-action" 
+                                                    data-bs-toggle="tooltip" 
+                                                    data-bs-placement="top" 
+                                                    title="Cancel">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                        </form>
                                     </div>
+                                    @endif
                                     
                                     <!-- Delete Button -->
                                     <div class="action-btn">

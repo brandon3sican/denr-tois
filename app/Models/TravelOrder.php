@@ -12,7 +12,7 @@ class TravelOrder extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'region_id',
+        'region',
         'address',
         'contact_number',
         'email',
@@ -32,6 +32,7 @@ class TravelOrder extends Model
         'assistant_or_laborers_allowed',
         'appropriations',
         'remarks',
+        'status',
         'status_id',
     ];
 

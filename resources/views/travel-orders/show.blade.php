@@ -6,10 +6,19 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Travel Order Details: {{ $travelOrder->travel_order_no }}</h5>
-        <div>
-            <a href="{{ route('travel-orders.edit', $travelOrder) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit"></i> Edit
-            </a>
+        <div class="d-flex gap-2">
+            @if(!in_array(strtolower($travelOrder->status), ['cancelled', 'completed']))
+            <form action="{{ route('travel-orders.cancel', $travelOrder) }}" 
+                  method="POST" 
+                  class="d-inline"
+                  onsubmit="return confirm('Are you sure you want to cancel this travel order?');">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn btn-warning btn-sm">
+                    <i class="fas fa-times-circle"></i> Cancel Travel Order
+                </button>
+            </form>
+            @endif
             <a href="{{ route('travel-orders.index') }}" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Back to List
             </a>
@@ -32,15 +41,22 @@
                         <th>Status:</th>
                         <td>
                             @php
+                                // Get status name, handling both string and object status
+                                $statusName = is_string($travelOrder->status) 
+                                    ? $travelOrder->status 
+                                    : ($travelOrder->status->name ?? 'Unknown');
+                                
                                 $statusClass = [
-                                    'pending' => 'warning',
+                                    'for recommendation' => 'primary',
+                                    'for approval' => 'warning',
                                     'approved' => 'success',
-                                    'rejected' => 'danger',
+                                    'disapproved' => 'danger',
+                                    'cancelled' => 'secondary',
                                     'completed' => 'info',
-                                ][strtolower($travelOrder->status->name)] ?? 'secondary';
+                                ][strtolower($statusName)] ?? 'secondary';
                             @endphp
                             <span class="badge bg-{{ $statusClass }}">
-                                {{ $travelOrder->status->name }}
+                                {{ ucfirst($statusName) }}
                             </span>
                         </td>
                     </tr>
@@ -175,7 +191,7 @@
             </div>
         </div>
 
-        @if($travelOrder->signatures->count() > 0)
+        @if(isset($travelOrder->signatures) && (is_countable($travelOrder->signatures) && count($travelOrder->signatures) > 0))
             <div class="row mt-4">
                 <div class="col-12">
                     <h6>Signatures</h6>
@@ -211,21 +227,6 @@
                         Last Updated: {{ $travelOrder->updated_at->format('M d, Y h:i A') }}
                     @endif
                 </small>
-            </div>
-            <div>
-                <form action="{{ route('travel-orders.destroy', $travelOrder) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this travel order?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </form>
-                <a href="{{ route('travel-orders.edit', $travelOrder) }}" class="btn btn-warning btn-sm">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
-                <a href="{{ route('travel-orders.index') }}" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-arrow-left"></i> Back to List
-                </a>
             </div>
         </div>
     </div>
