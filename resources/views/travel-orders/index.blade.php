@@ -23,6 +23,7 @@
                         <th>Arrival Date</th>
                         <th>Status</th>
                         <th>Actions</th>
+                        <th>Created At</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,6 +105,7 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>{{ $travelOrder->created_at->format('M d, Y') }}</td>
                         </tr>
                     @empty
                         <tr>

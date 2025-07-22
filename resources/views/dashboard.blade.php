@@ -128,10 +128,9 @@
                     <table class="table table-bordered" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>Reference No.</th>
+                                <th>Travel Order No.</th>
                                 <th>Employee</th>
-                                <th>Destination</th>
-                                <th>Purpose</th>
+                                <th>Travel Date</th>
                                 <th>Status</th>
                                 <th>Date Filed</th>
                             </tr>
@@ -139,33 +138,36 @@
                         <tbody>
                             @foreach($recentTravelOrders as $order)
                                 <tr>
-                                    <td>{{ $order->reference_number }}</td>
+                                    <td>{{ $order->travel_order_no }}</td>
                                     <td>{{ $order->employee->full_name }}</td>
-                                    <td>{{ $order->destination }}</td>
-                                    <td>{{ Str::limit($order->purpose, 50) }}</td>
+                                    <td>{{ $order->departure_date }}</td>
                                     <td>
-                                        @if(isset($order->status))
-                                            @php
-                                                $statusClass = match($order->status) {
-                                                    'Approved' => 'success',
-                                                    'Disapproved' => 'danger',
-                                                    'Cancelled' => 'secondary',
-                                                    'Completed' => 'info',
-                                                    default => 'warning'
-                                                };
-                                            @endphp
-                                            <span class="badge badge-{{ $statusClass }}">
-                                                {{ $order->status }}
-                                            </span>
-                                        @else
-                                            <span class="badge badge-secondary">N/A</span>
-                                        @endif
+                                        @php
+                                            // Get the status name, handling both string and object status
+                                            $statusName = is_string($order->status) 
+                                                ? $order->status 
+                                                : ($order->status->name ?? 'Unknown');
+                                                
+                                            $statusClass = [
+                                                'pending' => 'warning',
+                                                'approved' => 'success',
+                                                'rejected' => 'danger',
+                                                'completed' => 'info',
+                                                'for recommendation' => 'primary',
+                                            ][strtolower($statusName)] ?? 'secondary';
+                                        @endphp
+                                        <span class="badge bg-{{ $statusClass }}">
+                                            {{ ucfirst($statusName) }}
+                                        </span>
                                     </td>
                                     <td>{{ $order->created_at->format('M d, Y') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="d-flex justify-content-center mt-4">
+                        {{ $recentTravelOrders->links() }}
+                    </div>
                 </div>
             @else
                 <div class="text-center py-4">

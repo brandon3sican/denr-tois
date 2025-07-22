@@ -16,8 +16,17 @@ class EmployeeController extends Controller
         $sortField = in_array($request->get('sort'), $validSortFields) ? $request->get('sort') : 'created_at';
         $sortDirection = $request->get('direction', 'desc');
         $sortDirection = in_array(strtolower($sortDirection), ['asc', 'desc']) ? $sortDirection : 'desc';
+        $search = $request->get('search');
         
         $employees = Employee::with(['position', 'divSecUnit', 'employmentStatus'])
+            ->when($search, function($query) use ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                      ->orWhere('last_name', 'like', "%{$search}%")
+                      ->orWhere('middle_name', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%");
+                });
+            })
             ->when($sortField === 'position_id', function($query) use ($sortDirection) {
                 return $query->join('positions', 'employees.position_id', '=', 'positions.id')
                     ->orderBy('positions.name', $sortDirection)
@@ -27,6 +36,9 @@ class EmployeeController extends Controller
                 return $query->join('div_sec_units', 'employees.div_sec_unit_id', '=', 'div_sec_units.id')
                     ->orderBy('div_sec_units.name', $sortDirection)
                     ->select('employees.*');
+            })
+            ->when(!in_array($sortField, ['position_id', 'div_sec_unit_id']), function($query) use ($sortField, $sortDirection) {
+                return $query->orderBy($sortField, $sortDirection);
             })
             ->when($sortField === 'employment_status_id', function($query) use ($sortDirection) {
                 return $query->join('employment_statuses', 'employees.employment_status_id', '=', 'employment_statuses.id')

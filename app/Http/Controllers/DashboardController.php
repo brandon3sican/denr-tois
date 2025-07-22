@@ -48,8 +48,7 @@ class DashboardController extends Controller
                 $query->orderByRaw("FIELD(status, 'For Recommendation', 'For Approval', 'Approved', 'Disapproved', 'Cancelled', 'Completed')");
             })
             ->latest()
-            ->take(5)
-            ->get();
+            ->paginate(10);
 
         $data = [
             'totalEmployees' => Employee::count(),

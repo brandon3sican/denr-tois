@@ -5,9 +5,24 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Employees</h1>
-    <a href="{{ route('employees.create') }}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Add Employee
-    </a>
+    <div class="d-flex gap-2">
+        <form action="{{ route('employees.index') }}" method="GET" class="d-flex gap-2">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Search employees..." value="{{ request('search') }}">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+                @if(request('search'))
+                    <a href="{{ route('employees.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+        <a href="{{ route('employees.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Employee
+        </a>
+    </div>
 </div>
 
 <div class="card">
