@@ -76,7 +76,7 @@
                     @endif
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label for="full_name" class="form-label">Full Name *</label>
                             <input type="text" class="form-control @error('full_name') is-invalid @enderror" 
                                    id="full_name" name="full_name" value="{{ $isAdmin ? old('full_name') : ($employee->full_name ?? '') }}" required readonly>
@@ -84,7 +84,9 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="col-md-6">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
                             <label for="position" class="form-label">Position *</label>
                             <input type="text" class="form-control @error('position') is-invalid @enderror" 
                                    id="position" name="position" value="{{ $isAdmin ? old('position') : ($employee->position->name ?? '') }}" required readonly>
@@ -92,9 +94,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-
-                    <div class="row mt-3">
                         <div class="col-md-4">
                             <label for="div_sec_unit" class="form-label">Division/Section/Unit *</label>
                             <input type="text" class="form-control @error('div_sec_unit') is-invalid @enderror" 
@@ -102,11 +101,6 @@
                             @error('div_sec_unit')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                        </div>
-                        <div class="col-md-4">
-                            <label for="contact_number" class="form-label">Official Station</label>
-                            <input type="text" class="form-control" id="contact_number" name="contact_number" 
-                                   value="" readonly>
                         </div>
                         <div class="col-md-4">
                             <label for="salary" class="form-label">Salary *</label>
@@ -119,7 +113,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
                     </div>
                 </div>
             </div>
@@ -414,6 +407,8 @@
                         const option = document.createElement('option');
                         option.value = station.id;
                         option.textContent = station.name;
+                        // Store the full station data as a data attribute
+                        option.dataset.address = station.address || '';
                         officialStationSelect.appendChild(option);
                     });
                     
@@ -440,6 +435,16 @@
                 });
         }
         
+        // Handle official station change
+        officialStationSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption && selectedOption.dataset.address) {
+                addressInput.value = selectedOption.dataset.address;
+            } else {
+                addressInput.value = '';
+            }
+        });
+
         // Handle region change
         regionSelect.addEventListener('change', function() {
             const regionId = this.value;
