@@ -1,12 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 mb-0">Dashboard</h1>
-        </div>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Dashboard</h1>
+</div>
 
     <!-- Stats Cards -->
     <div class="row mb-4">
@@ -181,7 +178,6 @@
             @endif
         </div>
     </div>
-</div>
 @endsection
 
 @push('styles')

@@ -26,14 +26,14 @@ Route::prefix('regions')->group(function () {
     Route::get('/', [RegionController::class, 'index']);
     Route::get('/{region}', [RegionController::class, 'show']);
     
+    // Public route to get stations by region (needed for travel order form)
+    Route::get('/{region}/stations', [OfficialStationController::class, 'getByRegion']);
+    
     // Protected routes (require authentication)
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [RegionController::class, 'store']);
         Route::put('/{region}', [RegionController::class, 'update']);
         Route::delete('/{region}', [RegionController::class, 'destroy']);
-        
-        // Get official stations for a region
-        Route::get('/{region}/stations', [OfficialStationController::class, 'getByRegion']);
     });
 });
 

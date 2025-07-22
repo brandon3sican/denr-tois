@@ -36,6 +36,10 @@
 /* Dropdown Menu */
 .dropdown-menu {
     z-index: var(--zindex-dropdown) !important;
+    position: absolute !important;
+    inset: auto auto 0px 0px !important;
+    margin: 0px !important;
+    transform: translate3d(0px, 40px, 0px) !important;
 }
 
 /* Ensure the dropdown toggle is above other elements */
@@ -47,6 +51,129 @@
 /* Ensure dropdown appears above all other elements */
 .dropdown {
     position: relative;
+    z-index: auto;
+}
+
+/* Fix for dropdowns in modals */
+.modal .dropdown-menu {
+    z-index: calc(var(--zindex-modal) + 10) !important;
+    position: absolute !important;
+}
+
+/* Fix for dropdowns in fixed position elements */
+.fixed-top .dropdown-menu,
+.fixed-bottom .dropdown-menu,
+.sticky-top .dropdown-menu {
+    z-index: calc(var(--zindex-fixed) + 10) !important;
+}
+
+/* Fix for dropdowns in navbar */
+.navbar .dropdown-menu {
+    z-index: calc(var(--zindex-fixed) + 10) !important;
+}
+
+/* Fix for dropdowns in tables */
+.table-responsive .dropdown-menu {
+    position: absolute !important;
+    z-index: calc(var(--zindex-dropdown) + 100) !important;
+}
+
+/* Ensure select2 dropdowns are always on top */
+.select2-container--open .select2-dropdown--below {
+    z-index: calc(var(--zindex-dropdown) + 10) !important;
+}
+
+.select2-container--open .select2-dropdown--above {
+    z-index: calc(var(--zindex-dropdown) + 10) !important;
+}
+
+/* Fix for date/time pickers */
+.bootstrap-datetimepicker-widget.dropdown-menu {
+    z-index: calc(var(--zindex-dropdown) + 20) !important;
+    position: absolute !important;
+}
+
+/* Fix for multiselect dropdowns */
+.multiselect-container.dropdown-menu {
+    z-index: calc(var(--zindex-dropdown) + 30) !important;
+    position: absolute !important;
+}
+
+/* Ensure tooltips and popovers stay above dropdowns */
+.tooltip,
+.bs-tooltip-auto[data-popper-placement^=top],
+.bs-tooltip-top {
+    z-index: var(--zindex-tooltip) !important;
+}
+
+.popover {
+    z-index: var(--zindex-popover) !important;
+}
+
+/* Fix for dropdowns in cards */
+.card .dropdown-menu {
+    z-index: calc(var(--zindex-dropdown) + 40) !important;
+}
+
+/* Select2 Dropdowns */
+.select2-container {
+    z-index: var(--zindex-dropdown) !important;
+}
+
+.select2-container--open .select2-dropdown {
+    z-index: calc(var(--zindex-dropdown) + 10) !important;
+}
+
+.select2-dropdown {
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    z-index: calc(var(--zindex-dropdown) + 5) !important;
+}
+
+/* Form Select Elements */
+select.form-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.25rem;
+}
+
+/* Ensure all form controls with dropdowns have proper z-index */
+.form-select,
+.form-control,
+.input-group {
+    position: relative;
+    z-index: 1;
+}
+
+/* Fix for modals and other overlays */
+.modal .dropdown-menu {
+    z-index: calc(var(--zindex-modal) + 10) !important;
+}
+
+/* Fix for dropdowns inside data tables */
+.dataTables_wrapper .dropdown-menu {
+    z-index: calc(var(--zindex-dropdown) + 100) !important;
+}
+
+/* Fix for tooltips and popovers */
+.tooltip,
+.bs-tooltip-auto[data-popper-placement^=top],
+.bs-tooltip-top {
+    z-index: var(--zindex-tooltip) !important;
+}
+
+.popover {
+    z-index: var(--zindex-popover) !important;
+}
+
+/* Fix for datepickers and other datetime pickers */
+.bootstrap-datetimepicker-widget {
+    z-index: var(--zindex-dropdown) !important;
 }
 
 /* Force the dropdown menu to be on top of everything */
@@ -908,7 +1035,7 @@ min-height: 48px;
 /* Activity colors */
 .bg-success { background: var(--denr-gradient); }
 .bg-info { background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%); }
-.bg-primary { background: var(--denr-gradient); }
+.{ background: var(--denr-gradient); }
 
 /* Form Elements */
 .travel-order-form {
@@ -1321,20 +1448,176 @@ h6 { font-size: 1rem; }
     font-size: 0.9rem;
 }
 
-.form-control {
+/* Base styles for all form controls */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+input[type="url"],
+input[type="search"],
+input[type="color"],
+select,
+textarea,
+.form-control,
+.form-select,
+.form-check-input,
+.form-range,
+.input-group-text {
     background: var(--white);
     border: 2px solid var(--denr-border);
     border-radius: 8px;
     padding: 0.75rem 1rem;
     font-size: 1rem;
-    transition: all 0.3s ease;
     color: var(--denr-text);
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.form-control:focus {
+/* Remove default browser styling for select elements */
+select.form-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.25rem;
+}
+
+/* Hover state for all form controls */
+input[type="text"]:not(:disabled):not([readonly]):hover,
+input[type="email"]:not(:disabled):not([readonly]):hover,
+input[type="password"]:not(:disabled):not([readonly]):hover,
+input[type="number"]:not(:disabled):not([readonly]):hover,
+input[type="tel"]:not(:disabled):not([readonly]):hover,
+input[type="date"]:not(:disabled):not([readonly]):hover,
+input[type="time"]:not(:disabled):not([readonly]):hover,
+input[type="datetime-local"]:not(:disabled):not([readonly]):hover,
+input[type="month"]:not(:disabled):not([readonly]):hover,
+input[type="week"]:not(:disabled):not([readonly]):hover,
+input[type="url"]:not(:disabled):not([readonly]):hover,
+input[type="search"]:not(:disabled):not([readonly]):hover,
+input[type="color"]:not(:disabled):not([readonly]):hover,
+select:not(:disabled):not([readonly]):hover,
+textarea:not(:disabled):not([readonly]):hover,
+.form-control:not(:disabled):not([readonly]):hover,
+.form-select:not(:disabled):not([readonly]):hover,
+.input-group-text:not(:disabled):not([readonly]):hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     border-color: var(--denr-primary);
+}
+
+/* Focus state for all form controls */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+input[type="month"]:focus,
+input[type="week"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="color"]:focus,
+select:focus,
+textarea:focus,
+.form-control:focus,
+.form-select:focus,
+.input-group-text:focus {
     box-shadow: 0 0 0 0.25rem rgba(0, 86, 63, 0.25);
-    background: var(--white);
+    border-color: var(--denr-primary);
+    outline: 0;
+}
+
+/* Disabled and read-only states */
+input:disabled,
+select:disabled,
+textarea:disabled,
+.form-control:disabled,
+.form-select:disabled,
+.input-group-text:disabled,
+input[readonly],
+select[readonly],
+textarea[readonly],
+.form-control[readonly],
+.form-select[readonly] {
+    background-color: #f8f9fa;
+    opacity: 1;
+    box-shadow: none;
+}
+
+/* Input group adjustments */
+.input-group .form-control,
+.input-group .form-select {
+    box-shadow: none;
+}
+
+.input-group .form-control:focus,
+.input-group .form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 86, 63, 0.25);
+}
+
+/* Checkbox and radio buttons */
+.form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.2em;
+    vertical-align: top;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: 1px solid var(--denr-border);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.form-check-input:checked {
+    background-color: var(--denr-primary);
+    border-color: var(--denr-primary);
+}
+
+/* Range input */
+.form-range {
+    width: 100%;
+    height: 1.5rem;
+    padding: 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.form-range:focus {
+    outline: 0;
+}
+
+/* Input group text */
+.input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .form-control::placeholder {
